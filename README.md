@@ -10,6 +10,9 @@ dirtbike designed by the EVT team.  It will control the bike start up
 sequence, provide 12V and 5V power to the bike electronic systems (excluding
 main motor), and detect faults in the power system.
 
+Documentation on the APM Multidisciplanary Senior Design Project can be found
+here: [APM Confluence](https://wiki.rit.edu/display/P21261/P21261+Project+Overview)
+
 ![APM System Architecture](./assets/DEV1%20APM%20Architecture.png)
 
 ## Build
