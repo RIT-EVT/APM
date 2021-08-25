@@ -14,14 +14,36 @@ constexpr int BAUD_RATE = 115200;
 char buf[256];
 
 int main() {
-
+    // Initialize IO Devices
     IO::init();
-
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(BAUD_RATE);
 
-    uart.printf("DEV1 APM Init...\n\n\r");
+    uart.printf("\x1B\x5B\x32\x4A");    // Escape sequence for minicom terminal to clear display
+
+    uart.printf("                       @@@@@@@@@@@@@@@@@@@@@@@@@@                      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\r");
+    uart.printf("                      @@@@@@@@@@@@@@@@@@@@@@@@@@                     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n\r");
+    uart.printf("                    (@@@@@@                                                     @@@@@@              \n\r");
+    uart.printf("        ////       @@@@@@                                                      @@@@@@               \n\r");
+    uart.printf("      //*//       @@@@@@                                                      @@@@@@                \n\r");
+    uart.printf("  ////////////   @@@@@@@@@@@@@@@@@@   //////////*//         ////*/////////   @@@@@@   ./////////*/  \n\r");
+    uart.printf("    ////*       @@@@@@                         /*///      //////            @@@@@@                  \n\r");
+    uart.printf("   ////        @@@@@@                          /*///   //////             @@@@@@                    \n\r");
+    uart.printf("              @@@@@@                           /*/*/ /*/*/*              @@@@@@                     \n\r");
+    uart.printf("            @@@@@@@@@@@@@@@@@@@@@@@@@@@         *///////                @@@@@@                      \n\r");
+    uart.printf("           @@@@@@@@@@@@@@@@@@@@@@@@@@@          */////                 @@@@@@                       \n\r");
+
+    uart.printf("\nDEV1 APM Initializing...\n\n\r");
+
     while (!APM::Startup::wait_for_startup()) {
         uart.printf("Waiting for startup...\n\r");
     }
+}
 
+/**
+ * Prompt to the user while bike is in standby state waiting for ON Switch to start
+ * @param uart reference to the IO::UART object for interfacing with the user
+ * @return 0 on success, 1 if a failure has occurred
+ */
+int standby_prompt(const IO::UART& uart) {
+    return 0;
 }
