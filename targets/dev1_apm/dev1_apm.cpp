@@ -47,26 +47,43 @@ int user_prompt(IO::UART& uart) {
 
 int main() {
     int prompt_status = 1;
+    IO::GPIO::State keyOnSwState = IO::GPIO::State::LOW;
 
     // Initialize IO Devices
     IO::init();
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(BAUD_RATE);
-    IO::GPIO& AccessorySW_GPIO = IO::getGPIO<ACCESSORY_SW>(IO::GPIO::Direction::OUTPUT);
-    IO::GPIO& ChargeSW_GPIO = IO::getGPIO<CHARGE_SW>(IO::GPIO::Direction::OUTPUT);
-    IO::GPIO& VicorSW_GPIO = IO::getGPIO<VICOR_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO& accessorySW_GPIO = IO::getGPIO<ACCESSORY_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO& chargeSW_GPIO = IO::getGPIO<CHARGE_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO& vicorSW_GPIO = IO::getGPIO<VICOR_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO& keyOnSw_GPIO = IO::getGPIO<KEY_ON_UC>(IO::GPIO::Direction::INPUT);
 
     APM::startup_message(uart);
 
     // Initially Load Device into Accessory Mode on Power On
-    AccessorySW_GPIO.writePin(IO::GPIO::State::HIGH);
+    accessorySW_GPIO.writePin(IO::GPIO::State::HIGH);
     // TODO: Send Accessory Mode CAN Message and start sending on timer (interrupt)
-    uart.printf("Accessory Switch Closed\n\r");
+    uart.printf("Accessory_SW Closed\n\r");
     uart.printf("Entered Accessory Mode\n\r");
     uart.printf("---------------------------------------------\n\r");
 
     // Check if key_sw is high
+    keyOnSwState = keyOnSw_GPIO.readPin();
+    if (keyOnSwState == IO::GPIO::State::HIGH) {
+        uart.printf("Key_On_UC is initially high.  Loading APM into ON Mode");
 
-    // TODO: Handle case where ON signal is initially high when APM loads up.
+        // TODO: Enable Vicor Enable Pin
+        vicorSW_GPIO.writePin(IO::GPIO::State::HIGH);
+        uart.printf("Vicor_SW Closed\n\r");
+        accessorySW_GPIO.writePin(IO::GPIO::State::LOW);
+        uart.printf("Accessory_SW Opened\n\r");
+        chargeSW_GPIO.writePin(IO::GPIO::State::HIGH);
+        uart.printf("Charge_SW Closed\n\r");
+
+        // TODO: Send CAN Message for ON Mode on timer
+
+        uart.printf("Entered On Mode\n\r");
+        uart.printf("---------------------------------------------\n\r");
+    }
     // TODO: Handle interrupt case for ON Signal Turning ON.
 
     // Display Prompt to user
