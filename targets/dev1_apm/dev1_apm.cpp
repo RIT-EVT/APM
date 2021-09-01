@@ -26,7 +26,7 @@ void handleKeyOnInterrupt(IO::GPIO* gpio) {
     auto state = gpio->readPin();
     char outStr[BUF_SIZE];
 
-    sprintf(outStr, "Key Interrupt Triggered: %s edge",
+    sprintf(outStr, "Key Interrupt Triggered: %s edge\n\r",
             state == IO::GPIO::State::HIGH ? "rising" : "falling");
     apmUart.printDebugString(outStr);
 
@@ -34,7 +34,7 @@ void handleKeyOnInterrupt(IO::GPIO* gpio) {
         apmDevicePtr -> accessoryToOnMode();
     }
     else if (state == IO::GPIO::State::LOW && apmDevicePtr->getCurrentMode() == ApmMode::ON) {
-        // TODO: Handle ON to Accessory transition
+        apmDevicePtr -> onToAccessoryMode();
     }
     else {
         // TODO: Handle error
@@ -55,12 +55,6 @@ int userPrompt(ApmDevice& apmDevice, ApmUart& apmUart) {
 
     apmUart.gets(buf, BUF_SIZE);
     apmUart.printString("\n\r");
-
-    // TODO: Implement Different Commands
-    // 'h': Help Message
-    // 'd': Debug Mode.  Prints out all debug statements to terminal.  Exit
-    //    on key press
-    // 'm': Get Mode.  Returns accessory or on respectively
 
     if (strncmp("h", buf, BUF_SIZE) == 0) {
         apmUart.printString("List of possible commands:\n\r");
@@ -88,10 +82,13 @@ int userPrompt(ApmDevice& apmDevice, ApmUart& apmUart) {
     }
     else if (strncmp("d", buf, BUF_SIZE) == 0) {
         apmUart.printString("Entering Debug Mode.  Will print out all debug messages to terminal\n\r");
-        apmUart.printString("Press any key to exit...\n\r");
+        apmUart.printString("Must reset the device to exit DEBUG mode\n\r");
+//        apmUart.printString("Press any key to exit...\n\r");
         apmUart.setDebugPrint(true);
-        apmUart.getc();
-        apmUart.setDebugPrint(false);
+//        apmUart.getc();
+//        apmUart.setDebugPrint(false);
+        while (1) {} // TODO: Update to wait for user input once UART interrupts are implemented
+        // Currently it requires an entire device reset to exit blocking mode.
     }
 
     return 0;
@@ -119,7 +116,6 @@ int main() {
                                          keyOnSw_GPIO, vicorSW_GPIO);
     apmDevicePtr = &apmDevice;
     // TODO figure out this pointer better
-
 
     apmUart.setDebugPrint(true);
     apmUart.startupMessage();

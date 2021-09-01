@@ -32,7 +32,7 @@ public:
      * Initializes the IO Devices
      * @param baud the baudrate for the UART device
      */
-    explicit ApmDevice(int baud, IO::GPIO &accessorySwGpio, ApmUart apmUart, IO::GPIO &chargeSwGpio,
+    explicit ApmDevice(int baud, IO::GPIO &accessorySwGpio, ApmUart &apmUart, IO::GPIO &chargeSwGpio,
                        IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio);
 
     /**
@@ -60,6 +60,12 @@ public:
     int accessoryToOnMode();
 
     /**
+     * Function to transition from On Mode to Accessory Mode
+     * @return 0 on success
+     */
+    int onToAccessoryMode();
+
+    /**
      * Manually checks the device on switch.  Will transition the bike to On mode accordingly
      * @return 0 on success
      */
@@ -77,10 +83,18 @@ private:
     ApmMode currentMode = ApmMode::OFF;
 
     // Holds a reference to the ApmUart device
-    ApmUart apmUart;
+    ApmUart &apmUart;
+
+    // Controls battery power to bike electronics.
     IO::GPIO &accessorySW_GPIO;
+
+    // Controls charging the APM backup battery.
     IO::GPIO &chargeSW_GPIO;
+
+    // Controls turning on the Vicor Power.  Uses main pack to power electronics
     IO::GPIO &vicorSW_GPIO;
+
+    // GPIO input that reads the value of the key signal
     IO::GPIO &keyOnSw_GPIO;
 
 };

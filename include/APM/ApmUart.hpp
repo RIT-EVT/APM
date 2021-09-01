@@ -75,7 +75,7 @@ private:
     IO::UART *apmUart = nullptr;
 
     // Boolean determining whether or not debug statements will be printed to the user
-    bool apmDebugPrint = false;
+    bool apmDebugPrint;
 
 };
 
