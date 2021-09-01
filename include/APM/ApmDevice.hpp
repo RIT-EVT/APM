@@ -65,6 +65,13 @@ public:
      */
     int checkOnSw();
 
+    /**
+     * Function to handle the interrupt triggered by the rising or falling edge on
+     * signal
+     * @param pin pointer to the GPIO object that triggered the interrupt
+     */
+    void handleOnSignalInterrupt(IO::GPIO *pin);
+
 private:
     // Holds the current mode of the APM device
     ApmMode currentMode = ApmMode::OFF;

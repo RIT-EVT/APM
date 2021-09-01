@@ -19,6 +19,28 @@ constexpr int BAUD_RATE = 115200;
 constexpr int BUF_SIZE = 256;
 
 char buf[BUF_SIZE];
+APM::ApmDevice* apmDevicePtr;
+
+void handleKeyOnInterrupt(IO::GPIO* gpio) {
+    auto apmUart = apmDevicePtr->getApmUart();
+    auto state = gpio->readPin();
+    char outStr[BUF_SIZE];
+
+    sprintf(outStr, "Key Interrupt Triggered: %s edge",
+            state == IO::GPIO::State::HIGH ? "rising" : "falling");
+    apmUart.printDebugString(outStr);
+
+    if (state == IO::GPIO::State::HIGH && apmDevicePtr->getCurrentMode() == ApmMode::ACCESSORY) {
+        apmDevicePtr -> accessoryToOnMode();
+    }
+    else if (state == IO::GPIO::State::LOW && apmDevicePtr->getCurrentMode() == ApmMode::ON) {
+        // TODO: Handle ON to Accessory transition
+    }
+    else {
+        // TODO: Handle error
+        // Probably just print out error
+    }
+}
 
 /**
 * Prompt to the user for interfacing with the board over UART Debug
@@ -93,25 +115,27 @@ int main() {
     ApmUart apmUart = APM::ApmUart(&uart);
 
     // Create Data Objects
-    auto apmDevice = APM::ApmDevice(BAUD_RATE, accessorySW_GPIO, apmUart, chargeSW_GPIO,
-                                    keyOnSw_GPIO, vicorSW_GPIO);
+    ApmDevice apmDevice = APM::ApmDevice(BAUD_RATE, accessorySW_GPIO, apmUart, chargeSW_GPIO,
+                                         keyOnSw_GPIO, vicorSW_GPIO);
+    apmDevicePtr = &apmDevice;
+    // TODO figure out this pointer better
 
 
     apmUart.setDebugPrint(true);
     apmUart.startupMessage();
 
     // Initially Load Device into Accessory Mode on Power On
-    apmDevice.offToAccessoryMode();
+    apmDevicePtr->offToAccessoryMode();
 
     // Check if key_sw is high
-    apmDevice.checkOnSw();
-    // TODO: Handle interrupt case for ON Signal Turning ON.
+    apmDevicePtr->checkOnSw();
+
+    // Set up interrupt for key signal
+    keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING_FALLING, handleKeyOnInterrupt);
 
     // Display Prompt to user
     apmUart.setDebugPrint(false);
     while (1) {
-        prompt_status = userPrompt(apmDevice, apmUart);
+        prompt_status = userPrompt(*apmDevicePtr, apmUart);
     }
-
-    // TODO: Handle case where somehow userPrompt exits
 }
