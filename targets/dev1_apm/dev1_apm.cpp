@@ -112,7 +112,7 @@ int main() {
     ApmUart apmUart = APM::ApmUart(&uart);
 
     // Create Data Objects
-    ApmDevice apmDevice = APM::ApmDevice(BAUD_RATE, accessorySW_GPIO, apmUart, chargeSW_GPIO,
+    ApmDevice apmDevice = APM::ApmDevice(accessorySW_GPIO, apmUart, chargeSW_GPIO,
                                          keyOnSw_GPIO, vicorSW_GPIO);
     apmDevicePtr = &apmDevice;
     // TODO figure out this pointer better

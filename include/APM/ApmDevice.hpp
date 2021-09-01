@@ -32,7 +32,7 @@ public:
      * Initializes the IO Devices
      * @param baud the baudrate for the UART device
      */
-    explicit ApmDevice(int baud, IO::GPIO &accessorySwGpio, ApmUart &apmUart, IO::GPIO &chargeSwGpio,
+    explicit ApmDevice(IO::GPIO &accessorySwGpio, ApmUart &apmUart, IO::GPIO &chargeSwGpio,
                        IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio);
 
     /**

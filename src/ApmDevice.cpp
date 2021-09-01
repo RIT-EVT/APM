@@ -8,7 +8,7 @@
 
 namespace APM {
 
-ApmDevice::ApmDevice(int baud, IO::GPIO &accessorySwGpio, ApmUart& apmUart, IO::GPIO &chargeSwGpio,
+ApmDevice::ApmDevice(IO::GPIO &accessorySwGpio, ApmUart& apmUart, IO::GPIO &chargeSwGpio,
                      IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio)
         : apmUart(apmUart), accessorySW_GPIO(accessorySwGpio), chargeSW_GPIO(chargeSwGpio), vicorSW_GPIO(vicorSwGpio),
           keyOnSw_GPIO(keyOnSwGpio) {
