@@ -13,17 +13,30 @@ namespace IO = EVT::core::IO;
 namespace APM {
 
 /**
- * Method to print the startup message to the user
+ * Function to print the startup message to the user
  * @param uart the uart device to send the message over
  */
-void startup_message(IO::UART &uart);
+void startupMessage();
 
 /**
- * Prompt to the user while bike is in standby state waiting for ON Switch to start
- * @param uart reference to the IO::UART object for interfacing with the user
- * @return 0 on success, 1 if a failure has occurred
+ * Function to set the reference used by this device for future uart print
+ * statements.
+ * @param uart Reference to the IO::UART object
  */
-int accessory_prompt(IO::UART &uart);
+void setUART(IO::UART *uart);
+
+/**
+ * Set the boolean variable to determine whether or not debug
+ * statements will be print to the UART device.
+ * @param debugPrint True if messages should be printed.  False if not.
+ */
+void setDebugPrint(bool debugPrint);
+
+/**
+ * Function to conditionally print a debug string
+ * @param message The string to print
+ */
+void printDebugString(const char* message);
 
 } // namespace APM
 
