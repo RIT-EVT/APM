@@ -39,13 +39,13 @@ public:
      * Returns the ApmUart object by reference
      * @return const reference to the ApmUart object
      */
-    ApmUart& getApmUart();
+    [[nodiscard]] ApmUart& getApmUart() const;
 
     /**
      * Returns the current mode
      * @return the current mode
      */
-    ApmMode getCurrentMode();
+    [[nodiscard]] ApmMode getCurrentMode() const;
 
     /**
     * Function to handle the transition from OFF mode to Accessory Mode
@@ -70,13 +70,6 @@ public:
      * @return 0 on success
      */
     int checkOnSw();
-
-    /**
-     * Function to handle the interrupt triggered by the rising or falling edge on
-     * signal
-     * @param pin pointer to the GPIO object that triggered the interrupt
-     */
-    void handleOnSignalInterrupt(IO::GPIO *pin);
 
 private:
     // Holds the current mode of the APM device

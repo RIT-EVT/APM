@@ -8,10 +8,12 @@
 
 namespace APM {
 
-ApmDevice::ApmDevice(IO::GPIO &accessorySwGpio, ApmUart& apmUart, IO::GPIO &chargeSwGpio,
-                     IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio)
-        : apmUart(apmUart), accessorySW_GPIO(accessorySwGpio), chargeSW_GPIO(chargeSwGpio), vicorSW_GPIO(vicorSwGpio),
-          keyOnSw_GPIO(keyOnSwGpio) {
+ApmDevice::ApmDevice(IO::GPIO &accessorySwGpio, ApmUart& apmUart,
+                     IO::GPIO &chargeSwGpio, IO::GPIO &keyOnSwGpio,
+                     IO::GPIO &vicorSwGpio)
+        :   apmUart(apmUart), accessorySW_GPIO(accessorySwGpio),
+            chargeSW_GPIO(chargeSwGpio), vicorSW_GPIO(vicorSwGpio),
+            keyOnSw_GPIO(keyOnSwGpio) {
 }
 
 int ApmDevice::offToAccessoryMode() {
@@ -61,7 +63,7 @@ int ApmDevice::onToAccessoryMode() {
     // have returned to accessory mode
 
     // Wait for the On key to return to accessory state
-    while(keyOnSw_GPIO.readPin() == IO::GPIO::State::HIGH) {
+    while (keyOnSw_GPIO.readPin() == IO::GPIO::State::HIGH) {
         apmUart.printDebugString("Waiting for Key to return to accessory mode state\n\r");
         EVT::core::time::wait(500);
     }
@@ -76,12 +78,11 @@ int ApmDevice::onToAccessoryMode() {
     return 0;
 }
 
-ApmUart & ApmDevice::getApmUart() {
+ApmUart & ApmDevice::getApmUart() const {
     return apmUart;
 }
 
 int ApmDevice::checkOnSw() {
-
     apmUart.printDebugString("Manually checking on switch status\n\r");
 
     IO::GPIO::State keyOnSwState = keyOnSw_GPIO.readPin();
@@ -101,8 +102,8 @@ int ApmDevice::checkOnSw() {
     return 0;
 }
 
-ApmMode ApmDevice::getCurrentMode() {
+ApmMode ApmDevice::getCurrentMode() const {
     return currentMode;
 }
 
-} //namespace APM
+}  // namespace APM

@@ -21,13 +21,13 @@ public:
      * @param apmDebugPrint boolean to determine whether or not debug statements should
      * be printed.
      */
-    ApmUart(IO::UART *apmUart, bool apmDebugPrint=false);
+    explicit ApmUart(IO::UART *apmUart, bool apmDebugPrint=false);
 
     /**
      * Function to print the startup message to the user
      * @param uart the uart device to send the message over
      */
-    void startupMessage();
+    void startupMessage() const;
 
     /**
      * Set the boolean variable to determine whether or not debug
@@ -40,20 +40,20 @@ public:
      * Function to conditionally print a debug string
      * @param message The string to print
      */
-    void printDebugString(const char *message);
+    void printDebugString(const char *message) const;
 
     /**
      * Function to always print a message using the UART device
      * @param message the message to print
      */
-    void printString(const char *message);
+    void printString(const char *message) const;
 
     /**
      * Passthrough for apmUart->getc()
      *
      * @return The character read in over UART.
      */
-    char getc();
+    [[nodiscard]] char getc() const;
 
     /**
      * Passthrough for apmUart->gets()
@@ -63,7 +63,7 @@ public:
      *
      * @return The buf pointer on success, NULL otherwise
      */
-    char* gets(char* buf, size_t size);
+    char* gets(char* buf, size_t size) const;
 
 
 
@@ -76,7 +76,6 @@ private:
 
     // Boolean determining whether or not debug statements will be printed to the user
     bool apmDebugPrint;
-
 };
 
 } // namespace ApmDevice

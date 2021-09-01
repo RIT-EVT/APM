@@ -11,7 +11,7 @@ ApmUart::ApmUart(IO::UART *apmUart, bool apmDebugPrint) {
     this -> apmDebugPrint = apmDebugPrint;
 }
 
-void ApmUart::startupMessage() {
+void ApmUart::startupMessage() const {
     apmUart->printf("%s\n\r", MINICOM_CLEAR_DISPLAY);    // Escape sequence for minicom terminal to clear display
 
     apmUart->printf("                       @@@@@@@@@@@@@@@@@@@@@@@@@@                      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\r");
@@ -33,24 +33,24 @@ void ApmUart::setDebugPrint(bool debugPrint) {
     apmDebugPrint = debugPrint;
 }
 
-void ApmUart::printDebugString(const char* message) {
+void ApmUart::printDebugString(const char* message) const {
     if (apmUart != nullptr) {
         if (apmDebugPrint) {
-            apmUart -> printf(message);
+            apmUart -> printf("%s", message);
         }
     }
 }
 
-void ApmUart::printString(const char *message) {
-    apmUart ->printf(message);
+void ApmUart::printString(const char *message) const {
+    apmUart ->printf("%s", message);
 }
 
-    char ApmUart::getc() {
-        return apmUart->getc();
-    }
+char ApmUart::getc() const {
+    return apmUart->getc();
+}
 
-    char *ApmUart::gets(char *buf, size_t size) {
-        return apmUart->gets(buf, size);
-    }
+char *ApmUart::gets(char *buf, size_t size) const {
+    return apmUart->gets(buf, size);
+}
 
-} // namespace APM
+}  // namespace APM
