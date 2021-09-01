@@ -7,43 +7,49 @@
 #include <EVT/io/pin.hpp>
 #include <EVT/io/UART.hpp>
 #include <APM/startup.hpp>
+#include <APM/apm_uart.hpp>
 
 namespace IO = EVT::core::IO;
 
 constexpr int BAUD_RATE = 115200;
-char buf[256];
+constexpr int BUF_SIZE = 256;
+
+char buf[BUF_SIZE];
+
+/**
+ * Prompt to the user for interfacing with the board over UART Debug
+ * @param uart reference to the IO::UART object for interfacing with the user
+ * @return 0 on success, 1 if a failure has occurred
+ */
+int user_prompt(IO::UART& uart) {
+    // TODO: Figure out how to pass uart as const reference
+    uart.printf("\n\rPlease enter a command\n\r");
+    uart.printf("Enter 'h' for help\n\r");
+    uart.printf(">> ");
+
+    uart.gets(buf, BUF_SIZE);
+
+    uart.printf("\n\rCommand Entered: %s\n\r", buf);
+
+    return 0;
+}
 
 int main() {
+    int prompt_status = 1;
+
     // Initialize IO Devices
     IO::init();
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(BAUD_RATE);
 
-    uart.printf("\x1B\x5B\x32\x4A");    // Escape sequence for minicom terminal to clear display
+    APM::startup_message(uart);
 
-    uart.printf("                       @@@@@@@@@@@@@@@@@@@@@@@@@@                      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\r");
-    uart.printf("                      @@@@@@@@@@@@@@@@@@@@@@@@@@                     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n\r");
-    uart.printf("                    (@@@@@@                                                     @@@@@@              \n\r");
-    uart.printf("        ////       @@@@@@                                                      @@@@@@               \n\r");
-    uart.printf("      //*//       @@@@@@                                                      @@@@@@                \n\r");
-    uart.printf("  ////////////   @@@@@@@@@@@@@@@@@@   //////////*//         ////*/////////   @@@@@@   ./////////*/  \n\r");
-    uart.printf("    ////*       @@@@@@                         /*///      //////            @@@@@@                  \n\r");
-    uart.printf("   ////        @@@@@@                          /*///   //////             @@@@@@                    \n\r");
-    uart.printf("              @@@@@@                           /*/*/ /*/*/*              @@@@@@                     \n\r");
-    uart.printf("            @@@@@@@@@@@@@@@@@@@@@@@@@@@         *///////                @@@@@@                      \n\r");
-    uart.printf("           @@@@@@@@@@@@@@@@@@@@@@@@@@@          */////                 @@@@@@                       \n\r");
+    // Initially Load Device into Accessory Mode on Power On
+    // TODO: Load device in accessory mode
 
-    uart.printf("\nDEV1 APM Initializing...\n\n\r");
-
-    while (!APM::Startup::wait_for_startup()) {
-        uart.printf("Waiting for startup...\n\r");
+    // Display Prompt to user
+    while (1) {
+        prompt_status = user_prompt(uart);
     }
-}
 
-/**
- * Prompt to the user while bike is in standby state waiting for ON Switch to start
- * @param uart reference to the IO::UART object for interfacing with the user
- * @return 0 on success, 1 if a failure has occurred
- */
-int standby_prompt(const IO::UART& uart) {
-    return 0;
+    // TODO: Handle case where somehow user_prompt exits
 }

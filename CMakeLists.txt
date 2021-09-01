@@ -21,7 +21,8 @@ add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-    ./src/startup.cpp
+        ./src/startup.cpp
+        ./src/apm_uart.cpp
 )
 
 ###############################################################################
