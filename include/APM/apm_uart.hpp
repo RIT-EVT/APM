@@ -23,7 +23,7 @@ void startup_message(IO::UART &uart);
  * @param uart reference to the IO::UART object for interfacing with the user
  * @return 0 on success, 1 if a failure has occurred
  */
-int accessory_prompt(const IO::UART &uart);
+int accessory_prompt(IO::UART &uart);
 
 } // namespace APM
 
