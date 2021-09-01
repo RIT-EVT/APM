@@ -2,14 +2,16 @@
  * Source file for apm_uart.hpp
  */
 
-#include <APM/apm_uart.hpp>
+#include <APM/ApmUart.hpp>
 
-constexpr char MINICOM_CLEAR_DISPLAY[5]= "\x1B\x5B\x32\x4A";
+namespace APM {
 
-IO::UART *apmUart = nullptr;
-bool apmDebugPrint = false;
+ApmUart::ApmUart(IO::UART *apmUart, bool apmDebugPrint) {
+    this -> apmUart = apmUart;
+    this -> apmDebugPrint = apmDebugPrint;
+}
 
-void APM::startupMessage() {
+void ApmUart::startupMessage() {
     apmUart->printf("%s\n\r", MINICOM_CLEAR_DISPLAY);    // Escape sequence for minicom terminal to clear display
 
     apmUart->printf("                       @@@@@@@@@@@@@@@@@@@@@@@@@@                      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\r");
@@ -24,21 +26,31 @@ void APM::startupMessage() {
     apmUart->printf("            @@@@@@@@@@@@@@@@@@@@@@@@@@@         *///////                @@@@@@                      \n\r");
     apmUart->printf("           @@@@@@@@@@@@@@@@@@@@@@@@@@@          */////                 @@@@@@                       \n\r");
 
-    apmUart->printf("\nDEV1 APM Initializing...\n\n\r");
+    apmUart->printf("\nDEV1 ApmDevice Initializing...\n\n\r");
 }
 
-void APM::setUART(IO::UART *uart) {
-    apmUart = uart;
-}
-
-void APM::setDebugPrint(bool debugPrint) {
+void ApmUart::setDebugPrint(bool debugPrint) {
     apmDebugPrint = debugPrint;
 }
 
-void APM::printDebugString(const char* message) {
+void ApmUart::printDebugString(const char* message) {
     if (apmUart != nullptr) {
         if (apmDebugPrint) {
             apmUart -> printf(message);
         }
     }
 }
+
+void ApmUart::printString(const char *message) {
+    apmUart ->printf(message);
+}
+
+    char ApmUart::getc() {
+        return apmUart->getc();
+    }
+
+    char *ApmUart::gets(char *buf, size_t size) {
+        return apmUart->gets(buf, size);
+    }
+
+} // namespace APM

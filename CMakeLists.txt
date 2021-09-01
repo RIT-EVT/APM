@@ -1,5 +1,5 @@
 ###############################################################################
-# Top level CMakeList for building the EVT APM source code
+# Top level CMakeList for building the EVT ApmDevice source code
 ###############################################################################
 cmake_minimum_required(VERSION 3.15)
 
@@ -21,8 +21,8 @@ add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-        ./src/startup.cpp
-        ./src/apm_uart.cpp
+        src/ApmDevice.cpp
+        src/ApmUart.cpp
 )
 
 ###############################################################################
