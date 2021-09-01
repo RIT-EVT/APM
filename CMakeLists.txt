@@ -1,5 +1,5 @@
 ###############################################################################
-# Top level CMakeList for building the EVT ApmDevice source code
+# Top level CMakeList for building the EVT APM source code
 ###############################################################################
 cmake_minimum_required(VERSION 3.15)
 
