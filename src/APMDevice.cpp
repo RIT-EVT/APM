@@ -1,14 +1,14 @@
 /**
- * Source code for ApmDevice class
+ * Source code for APMDevice class
  */
 
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/time.hpp>
-#include "APM/ApmDevice.hpp"
+#include "APM/APMDevice.hpp"
 
-namespace APM {
+namespace EVT::APM {
 
-ApmDevice::ApmDevice(IO::GPIO &accessorySwGpio, ApmUart& apmUart,
+APMDevice::APMDevice(IO::GPIO &accessorySwGpio, APMUart& apmUart,
                      IO::GPIO &chargeSwGpio, IO::GPIO &keyOnSwGpio,
                      IO::GPIO &vicorSwGpio)
         :   apmUart(apmUart), accessorySW_GPIO(accessorySwGpio),
@@ -16,11 +16,11 @@ ApmDevice::ApmDevice(IO::GPIO &accessorySwGpio, ApmUart& apmUart,
             keyOnSw_GPIO(keyOnSwGpio) {
 }
 
-int ApmDevice::offToAccessoryMode() {
+int APMDevice::offToAccessoryMode() {
     apmUart.printDebugString("Transitioning from OFF -> ACCESSORY\n\r");
     accessorySW_GPIO.writePin(IO::GPIO::State::HIGH);
     // TODO: Send Accessory Mode CAN Message and start sending on timer (interrupt)
-    currentMode = ApmMode::ACCESSORY;
+    currentMode = APMMode::ACCESSORY;
 
     apmUart.printDebugString("Accessory_SW Closed\n\r");
     apmUart.printDebugString("Entered Accessory Mode\n\r");
@@ -29,7 +29,7 @@ int ApmDevice::offToAccessoryMode() {
     return 0;
 }
 
-int ApmDevice::accessoryToOnMode() {
+int APMDevice::accessoryToOnMode() {
     apmUart.printDebugString("Transitioning from ACCESSORY -> ON\n\r");
     vicorSW_GPIO.writePin(IO::GPIO::State::HIGH);
     apmUart.printDebugString("Vicor_SW Closed\n\r");
@@ -40,7 +40,7 @@ int ApmDevice::accessoryToOnMode() {
 
     // TODO: Send CAN Message for ON Mode on timer
 
-    currentMode = ApmMode::ON;
+    currentMode = APMMode::ON;
 
     apmUart.printDebugString("Entered On Mode\n\r");
     apmUart.printDebugString("---------------------------------------------\n\r");
@@ -48,7 +48,7 @@ int ApmDevice::accessoryToOnMode() {
     return 0;
 }
 
-int ApmDevice::onToAccessoryMode() {
+int APMDevice::onToAccessoryMode() {
     // TODO: Send Accessory Mode CAN Message
     // Alerts other boards to begin transition to accessory mode
 
@@ -68,7 +68,7 @@ int ApmDevice::onToAccessoryMode() {
         EVT::core::time::wait(500);
     }
 
-    currentMode = ApmMode::ACCESSORY;
+    currentMode = APMMode::ACCESSORY;
 
     // TODO: Enable Accessory Mode Message on Timer
 
@@ -78,22 +78,22 @@ int ApmDevice::onToAccessoryMode() {
     return 0;
 }
 
-ApmUart & ApmDevice::getApmUart() const {
+APMUart & APMDevice::getApmUart() const {
     return apmUart;
 }
 
-int ApmDevice::checkOnSw() {
+int APMDevice::checkOnSw() {
     apmUart.printDebugString("Manually checking on switch status\n\r");
 
     IO::GPIO::State keyOnSwState = keyOnSw_GPIO.readPin();
     if (keyOnSwState == IO::GPIO::State::HIGH) {
         switch (currentMode) {
-            case ApmMode::OFF:
+            case APMMode::OFF:
                 offToAccessoryMode();
-            case ApmMode::ACCESSORY:
+            case APMMode::ACCESSORY:
                 accessoryToOnMode();
                 break;
-            case ApmMode::ON:
+            case APMMode::ON:
             default:
                 apmUart.printDebugString("Device is already On\n\r");
         }
@@ -102,8 +102,8 @@ int ApmDevice::checkOnSw() {
     return 0;
 }
 
-ApmMode ApmDevice::getCurrentMode() const {
+APMMode APMDevice::getCurrentMode() const {
     return currentMode;
 }
 
-}  // namespace APM
+}  // namespace EVT::APM

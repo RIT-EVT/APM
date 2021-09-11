@@ -1,5 +1,5 @@
 /**
- * Class to represent the ApmDevice Object.  Holds references
+ * Class to represent the APMDevice Object.  Holds references
  * to many of the key objects used by this device
  */
 
@@ -8,19 +8,19 @@
 
 #include <EVT/io/pin.hpp>
 #include <EVT/io/UART.hpp>
-#include "ApmUart.hpp"
+#include "APMUart.hpp"
 
-namespace APM {
+namespace EVT::APM {
 
 namespace IO = EVT::core::IO;
 
-enum class ApmMode {
+enum class APMMode {
     OFF = 0u,
     ACCESSORY = 1u,
     ON = 2u
 };
 
-class ApmDevice {
+class APMDevice {
 public:
     static constexpr IO::Pin ACCESSORY_SW = IO::Pin::PA_5;
     static constexpr IO::Pin CHARGE_SW = IO::Pin::PA_6;
@@ -28,24 +28,24 @@ public:
     static constexpr IO::Pin KEY_ON_UC = IO::Pin::PB_5;
 
     /**
-     * Create a new ApmDevice
+     * Create a new APMDevice
      * Initializes the IO Devices
      * @param baud the baudrate for the UART device
      */
-    explicit ApmDevice(IO::GPIO &accessorySwGpio, ApmUart &apmUart, IO::GPIO &chargeSwGpio,
+    explicit APMDevice(IO::GPIO &accessorySwGpio, APMUart &apmUart, IO::GPIO &chargeSwGpio,
                        IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio);
 
     /**
-     * Returns the ApmUart object by reference
-     * @return const reference to the ApmUart object
+     * Returns the APMUart object by reference
+     * @return const reference to the APMUart object
      */
-    [[nodiscard]] ApmUart& getApmUart() const;
+    [[nodiscard]] APMUart& getApmUart() const;
 
     /**
      * Returns the current mode
      * @return the current mode
      */
-    [[nodiscard]] ApmMode getCurrentMode() const;
+    [[nodiscard]] APMMode getCurrentMode() const;
 
     /**
     * Function to handle the transition from OFF mode to Accessory Mode
@@ -73,10 +73,10 @@ public:
 
 private:
     // Holds the current mode of the APM device
-    ApmMode currentMode = ApmMode::OFF;
+    APMMode currentMode = APMMode::OFF;
 
-    // Holds a reference to the ApmUart device
-    ApmUart &apmUart;
+    // Holds a reference to the APMUart device
+    APMUart &apmUart;
 
     // Controls battery power to bike electronics.
     IO::GPIO &accessorySW_GPIO;
@@ -92,6 +92,6 @@ private:
 
 };
 
-} // namespace ApmDevice
+} // namespace APMDevice
 
 #endif //APM_APMDEVICE_HPP

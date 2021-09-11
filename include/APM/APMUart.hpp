@@ -10,18 +10,18 @@
 
 namespace IO = EVT::core::IO;
 
-namespace APM {
+namespace EVT::APM {
 
-class ApmUart {
+class APMUart {
 public:
 
     /**
-     * Creates the ApmUart class
+     * Creates the APMUart class
      * @param apmUart pointer to the Uart device used for printing
      * @param apmDebugPrint boolean to determine whether or not debug statements should
      * be printed.
      */
-    explicit ApmUart(IO::UART *apmUart, bool apmDebugPrint=false);
+    explicit APMUart(IO::UART *apmUart, bool apmDebugPrint=false);
 
     /**
      * Function to print the startup message to the user
@@ -78,6 +78,6 @@ private:
     bool apmDebugPrint;
 };
 
-} // namespace ApmDevice
+} // namespace APMDevice
 
 #endif //APM_APM_UART_H
