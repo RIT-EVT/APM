@@ -17,12 +17,29 @@ project(APM
         LANGUAGES CXX C
         )
 
-add_library(${PROJECT_NAME} STATIC)
+add_executable(${PROJECT_NAME} targets/dev1_apm/dev1_apm.cpp)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-    ./src/startup.cpp
+        src/APMDevice.cpp
+        src/APMUart.cpp
 )
+
+# Make the main executable have an ".elf" suffix
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        OUTPUT_NAME "${PROJECT_NAME}"
+        SUFFIX ".elf"
+        )
+
+# Generate a map file
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
+                                -Wl,-Map=${PROJECT_NAME}.map")
+set(HEX_FILE "${PROJECT_NAME}.hex")
+set(BIN_FILE "${PROJECT_NAME}.bin")
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}> ${HEX_FILE}
+        COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${BIN_FILE}
+        COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
 
 ###############################################################################
 # Handle dependencies
@@ -42,8 +59,3 @@ target_link_libraries(${PROJECT_NAME}
 # Install and expose library
 ###############################################################################
 install_and_expose(${PROJECT_NAME})
-
-###############################################################################
-# Build Target Code
-###############################################################################
-add_subdirectory(targets)
