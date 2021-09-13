@@ -29,7 +29,9 @@ int Sim100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &re
     uint8_t requestMuxByte = payload[0];
     IO::CANMessage requestMessage(Sim100::CAN_REQUEST_ID, dataLength, &payload[0]);
     can.transmit(requestMessage);
-    // TODO: Implement CAN filtering to only receive SIM100 CAN messages here
+    /* TODO: Implement CAN filtering to only receive SIM100 CAN messages here.
+       This entire function will be updated for better handling with CAN Open integration so this
+       is a temporary fix */
 
     auto response = can.receive(&responseMessage, true);
     while (response == nullptr || responseMessage.getId() != CAN_RESPONSE_ID  ||

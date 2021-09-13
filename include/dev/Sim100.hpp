@@ -61,8 +61,6 @@ public:
      */
     uint16_t setMaxWorkingVoltage(uint16_t maxVoltage = DEV1_MAX_BATTERY_VOLTAGE);
 
-    // TODO: Implement Restart Sim100
-
     /**
      * Reads the isolation state of the GFD board.
      * @return 0 on success.  Returns a relevant error code on failure.
