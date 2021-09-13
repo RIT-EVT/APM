@@ -23,6 +23,7 @@ add_executable(${PROJECT_NAME} targets/dev1_apm/dev1_apm.cpp)
 target_sources(${PROJECT_NAME} PRIVATE
         src/APM/APMDevice.cpp
         src/APM/APMUart.cpp
+        src/dev/Sim100.cpp
 )
 
 # Make the main executable have an ".elf" suffix

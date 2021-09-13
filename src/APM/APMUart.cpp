@@ -4,7 +4,7 @@
 
 #include <APM/APMUart.hpp>
 
-namespace EVT::APM {
+namespace APM {
 
 APMUart::APMUart(IO::UART *apmUart, bool apmDebugPrint) {
     this -> apmUart = apmUart;
@@ -53,4 +53,4 @@ char *APMUart::gets(char *buf, size_t size) const {
     return apmUart->gets(buf, size);
 }
 
-}  // namespace EVT::APM
+}  // namespace APM

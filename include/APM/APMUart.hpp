@@ -10,7 +10,7 @@
 
 namespace IO = EVT::core::IO;
 
-namespace EVT::APM {
+namespace APM {
 
 class APMUart {
 public:
@@ -78,6 +78,6 @@ private:
     bool apmDebugPrint;
 };
 
-} // namespace APMDevice
+} // namespace APM
 
 #endif //APM_APM_UART_H

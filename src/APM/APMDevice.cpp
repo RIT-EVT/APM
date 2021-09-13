@@ -6,14 +6,13 @@
 #include <EVT/utils/time.hpp>
 #include "APM/APMDevice.hpp"
 
-namespace EVT::APM {
+namespace APM {
 
-APMDevice::APMDevice(IO::GPIO &accessorySwGpio, APMUart& apmUart,
-                     IO::GPIO &chargeSwGpio, IO::GPIO &keyOnSwGpio,
-                     IO::GPIO &vicorSwGpio)
-        :   apmUart(apmUart), accessorySW_GPIO(accessorySwGpio),
-            chargeSW_GPIO(chargeSwGpio), vicorSW_GPIO(vicorSwGpio),
-            keyOnSw_GPIO(keyOnSwGpio) {
+APMDevice::APMDevice(APMUart &apmUart, APM::DEV::Sim100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
+                     IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio)
+        :   apmUart(apmUart), sim100(sim100),
+            accessorySW_GPIO(accessorySwGpio), chargeSW_GPIO(chargeSwGpio),
+            vicorSW_GPIO(vicorSwGpio), keyOnSw_GPIO(keyOnSwGpio) {
 }
 
 int APMDevice::offToAccessoryMode() {
@@ -106,4 +105,4 @@ APMMode APMDevice::getCurrentMode() const {
     return currentMode;
 }
 
-}  // namespace EVT::APM
+}  // namespace APM

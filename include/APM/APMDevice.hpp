@@ -8,9 +8,10 @@
 
 #include <EVT/io/pin.hpp>
 #include <EVT/io/UART.hpp>
+#include <dev/Sim100.hpp>
 #include "APMUart.hpp"
 
-namespace EVT::APM {
+namespace APM {
 
 namespace IO = EVT::core::IO;
 
@@ -32,7 +33,7 @@ public:
      * Initializes the IO Devices
      * @param baud the baudrate for the UART device
      */
-    explicit APMDevice(IO::GPIO &accessorySwGpio, APMUart &apmUart, IO::GPIO &chargeSwGpio,
+    explicit APMDevice(APMUart &apmUart, APM::DEV::Sim100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
                        IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio);
 
     /**
@@ -78,6 +79,9 @@ private:
     // Holds a reference to the APMUart device
     APMUart &apmUart;
 
+    // Holds a reference to the SIM100 GFD device
+    APM::DEV::Sim100 &sim100;
+
     // Controls battery power to bike electronics.
     IO::GPIO &accessorySW_GPIO;
 
@@ -92,6 +96,6 @@ private:
 
 };
 
-} // namespace APMDevice
+} // namespace APM
 
 #endif //APM_APMDEVICE_HPP
