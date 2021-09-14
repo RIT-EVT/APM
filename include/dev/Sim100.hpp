@@ -67,6 +67,12 @@ public:
      */
     IsolationStateResponse getIsolationState();
 
+    /**
+     * Restarts the SIM100 board.
+     * @return 0 on success.  Error code on failure
+     */
+    int restartSIM100();
+
 private:
     /**
      * Enumeration to map the Request_mux byte of the CAN message to the request name
@@ -76,6 +82,7 @@ private:
         PART_NAME_1 = 0x02,
         PART_NAME_2 = 0x03,
         PART_NAME_3 = 0x04,
+        RESTART_SIM100 = 0xC1,
         SET_MAX_BATTERY_VOLTAGE = 0xF0,
         ISOLATION_STATE = 0xE0
     };
@@ -121,7 +128,8 @@ private:
      * @param responseMessage a reference to the response message to send back
      * @return 0 if successful
      */
-    int sendMessage(uint8_t dataLength, uint8_t* payload, IO::CANMessage &responseMessage);
+    int sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &responseMessage,
+                    bool expectResponse = true);
 };
 
 }  // namespace APM::Dev

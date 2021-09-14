@@ -21,7 +21,8 @@ int Sim100::sendDataRequestMessage(RequestMux requestType, IO::CANMessage &respo
     return sendMessage(payloadSize, &payload[0], responseMessage);
 }
 
-int Sim100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &responseMessage) {
+int Sim100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &responseMessage,
+                        bool expectResponse) {
     if (dataLength < 1) {
         return 1;
     }
@@ -32,6 +33,10 @@ int Sim100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &re
     /* TODO: Implement CAN filtering to only receive SIM100 CAN messages here.
        This entire function will be updated for better handling with CAN Open integration so this
        is a temporary fix */
+
+    if (!expectResponse) {
+        return 0;
+    }
 
     auto response = can.receive(&responseMessage, true);
     while (response == nullptr || responseMessage.getId() != CAN_RESPONSE_ID  ||
@@ -167,6 +172,18 @@ Sim100::IsolationStateResponse Sim100::getIsolationState() {
 
     // If no status bit errors detected, return all clear code
     return IsolationStateResponse::NoError;
+}
+
+int Sim100::restartSIM100() {
+    constexpr uint8_t payloadSize = 5;  // 1 byte for request type.  4 bytes for expected command
+    auto requestMuxByte = static_cast<uint8_t>(RequestMux::RESTART_SIM100);
+    IO::CANMessage responseMessage;
+
+    uint8_t payload[payloadSize] = {requestMuxByte, 0x01, 0x23, 0x45, 0x67};
+
+    sendMessage(payloadSize, payload, responseMessage, false);
+
+    return 0;
 }
 
 
