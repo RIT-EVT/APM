@@ -1,7 +1,6 @@
 /**
  * This is a basic sample for interfacing with the GFD board
  */
-// TODO: Create procedure on setting up hardware test
 
 #include <EVT/io/manager.hpp>
 #include <EVT/io/pin.hpp>
