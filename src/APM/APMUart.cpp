@@ -4,7 +4,7 @@
 
 #include <APM/APMUart.hpp>
 
-namespace EVT::APM {
+namespace APM {
 
 APMUart::APMUart(IO::UART *apmUart, bool apmDebugPrint) {
     this -> apmUart = apmUart;
@@ -26,7 +26,7 @@ void APMUart::startupMessage() const {
     apmUart->printf("            @@@@@@@@@@@@@@@@@@@@@@@@@@@         *///////                @@@@@@                      \n\r");
     apmUart->printf("           @@@@@@@@@@@@@@@@@@@@@@@@@@@          */////                 @@@@@@                       \n\r");
 
-    apmUart->printf("\nDEV1 APMDevice Initializing...\n\n\r");
+    apmUart->printf("\nDEV1 APMPlatform Initializing...\n\n\r");
 }
 
 void APMUart::setDebugPrint(bool debugPrint) {
@@ -53,4 +53,4 @@ char *APMUart::gets(char *buf, size_t size) const {
     return apmUart->gets(buf, size);
 }
 
-}  // namespace EVT::APM
+}  // namespace APM

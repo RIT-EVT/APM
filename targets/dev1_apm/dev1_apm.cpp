@@ -8,18 +8,22 @@
 #include <EVT/io/UART.hpp>
 #include <APM/APMUart.hpp>
 #include <cstring>
-#include <APM/APMDevice.hpp>
+#include <APM/APMPlatform.hpp>
 #include <cstdio>
+#include <dev/SIM100.hpp>
 
 namespace IO = EVT::core::IO;
 
-namespace EVT::APM {
+namespace APM {
 
 constexpr int BAUD_RATE = 115200;
 constexpr int BUF_SIZE = 256;
 
+constexpr IO::Pin CAN_TX = IO::Pin::PA_12;
+constexpr IO::Pin CAN_RX = IO::Pin::PA_11;
+
 char buf[BUF_SIZE];
-APM::APMDevice *apmDevicePtr;
+APM::APMPlatform *apmDevicePtr;
 
 void handleKeyOnInterrupt(IO::GPIO *gpio) {
     auto apmUart = apmDevicePtr->getApmUart();
@@ -45,7 +49,7 @@ void handleKeyOnInterrupt(IO::GPIO *gpio) {
 * @param uart reference to the IO::UART object for interfacing with the user
 * @return 0 on success, 1 if a failure has occurred
 */
-int userPrompt(const APMDevice &apmDevice, APMUart *apmUart) {
+int userPrompt(const APMPlatform &apmDevice, APMUart *apmUart) {
     apmUart->printString("\n\rPlease enter a command\n\r");
     apmUart->printString("Enter 'h' for help\n\r");
     apmUart->printString(">> ");
@@ -73,7 +77,7 @@ int userPrompt(const APMDevice &apmDevice, APMUart *apmUart) {
                 break;
         }
 
-        snprintf(buf, BUF_SIZE, "Current APMDevice Mode: %s\n\r", modeString);
+        snprintf(buf, BUF_SIZE, "Current APMPlatform Mode: %s\n\r", modeString);
         apmUart->printString(buf);
     } else if (strncmp("d", buf, BUF_SIZE) == 0) {
         apmUart->printString("Entering Debug Mode.  Will print out all debug messages to terminal\n\r");
@@ -89,39 +93,42 @@ int userPrompt(const APMDevice &apmDevice, APMUart *apmUart) {
     return 0;
 }
 
-}  // namespace EVT::APM
+}  // namespace APM
 
 int main() {
     // Initialize IO Objects
     IO::init();
-    IO::UART &uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(EVT::APM::BAUD_RATE);
-    IO::GPIO &accessorySW_GPIO = IO::getGPIO<EVT::APM::APMDevice::ACCESSORY_SW>(IO::GPIO::Direction::OUTPUT);
-    IO::GPIO &chargeSW_GPIO = IO::getGPIO<EVT::APM::APMDevice::CHARGE_SW>(IO::GPIO::Direction::OUTPUT);
-    IO::GPIO &vicorSW_GPIO = IO::getGPIO<EVT::APM::APMDevice::VICOR_SW>(IO::GPIO::Direction::OUTPUT);
-    IO::GPIO &keyOnSw_GPIO = IO::getGPIO<EVT::APM::APMDevice::KEY_ON_UC>(IO::GPIO::Direction::INPUT);
+    IO::UART &uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(APM::BAUD_RATE);
+    IO::GPIO &accessorySW_GPIO = IO::getGPIO<APM::APMPlatform::ACCESSORY_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &chargeSW_GPIO = IO::getGPIO<APM::APMPlatform::CHARGE_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &vicorSW_GPIO = IO::getGPIO<APM::APMPlatform::VICOR_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &keyOnSw_GPIO = IO::getGPIO<APM::APMPlatform::KEY_ON_UC>(IO::GPIO::Direction::INPUT);
 
-    auto apmUart = EVT::APM::APMUart(&uart);
+    IO::CAN& can = IO::getCAN<APM::CAN_TX, APM::CAN_RX>();
+
+    auto apmUart = APM::APMUart(&uart);
+    auto sim100 = APM::DEV::SIM100(can);
 
     // Create Data Objects
-    EVT::APM::APMDevice apmDevice = EVT::APM::APMDevice(accessorySW_GPIO, apmUart, chargeSW_GPIO,
-                                         keyOnSw_GPIO, vicorSW_GPIO);
-    EVT::APM::apmDevicePtr = &apmDevice;
+    APM::APMPlatform apmDevice = APM::APMPlatform(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
+                                              keyOnSw_GPIO, vicorSW_GPIO);
+    APM::apmDevicePtr = &apmDevice;
 
     apmUart.setDebugPrint(true);
     apmUart.startupMessage();
 
     // Initially Load Device into Accessory Mode on Power On
-    EVT::APM::apmDevicePtr->offToAccessoryMode();
+    APM::apmDevicePtr->offToAccessoryMode();
 
     // Check if key_sw is high
-    EVT::APM::apmDevicePtr->checkOnSw();
+    APM::apmDevicePtr->checkOnSw();
 
     // Set up interrupt for key signal
-    keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING_FALLING, EVT::APM::handleKeyOnInterrupt);
+    keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING_FALLING, APM::handleKeyOnInterrupt);
 
     // Display Prompt to user
     apmUart.setDebugPrint(false);
     while (1) {
-        userPrompt(*EVT::APM::apmDevicePtr, &apmUart);
+        userPrompt(*APM::apmDevicePtr, &apmUart);
     }
 }

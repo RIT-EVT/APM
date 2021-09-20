@@ -21,8 +21,9 @@ add_executable(${PROJECT_NAME} targets/dev1_apm/dev1_apm.cpp)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-        src/APMDevice.cpp
-        src/APMUart.cpp
+        src/APM/APMPlatform.cpp
+        src/APM/APMUart.cpp
+        src/dev/SIM100.cpp
 )
 
 # Make the main executable have an ".elf" suffix
@@ -59,3 +60,8 @@ target_link_libraries(${PROJECT_NAME}
 # Install and expose library
 ###############################################################################
 install_and_expose(${PROJECT_NAME})
+
+###############################################################################
+# Build Test Code
+###############################################################################
+add_subdirectory(tests)

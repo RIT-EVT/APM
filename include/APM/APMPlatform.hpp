@@ -1,16 +1,17 @@
 /**
- * Class to represent the APMDevice Object.  Holds references
+ * Class to represent the APMPlatform Object.  Holds references
  * to many of the key objects used by this device
  */
 
-#ifndef APM_APMDEVICE_HPP
-#define APM_APMDEVICE_HPP
+#ifndef APM_APMPLATFORM_HPP
+#define APM_APMPLATFORM_HPP
 
 #include <EVT/io/pin.hpp>
 #include <EVT/io/UART.hpp>
+#include <dev/SIM100.hpp>
 #include "APMUart.hpp"
 
-namespace EVT::APM {
+namespace APM {
 
 namespace IO = EVT::core::IO;
 
@@ -20,7 +21,7 @@ enum class APMMode {
     ON = 2u
 };
 
-class APMDevice {
+class APMPlatform {
 public:
     static constexpr IO::Pin ACCESSORY_SW = IO::Pin::PA_5;
     static constexpr IO::Pin CHARGE_SW = IO::Pin::PA_6;
@@ -28,11 +29,11 @@ public:
     static constexpr IO::Pin KEY_ON_UC = IO::Pin::PB_5;
 
     /**
-     * Create a new APMDevice
+     * Create a new APMPlatform
      * Initializes the IO Devices
      * @param baud the baudrate for the UART device
      */
-    explicit APMDevice(IO::GPIO &accessorySwGpio, APMUart &apmUart, IO::GPIO &chargeSwGpio,
+    explicit APMPlatform(APMUart &apmUart, APM::DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
                        IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio);
 
     /**
@@ -78,6 +79,9 @@ private:
     // Holds a reference to the APMUart device
     APMUart &apmUart;
 
+    // Holds a reference to the SIM100 GFD device
+    APM::DEV::SIM100 &sim100;
+
     // Controls battery power to bike electronics.
     IO::GPIO &accessorySW_GPIO;
 
@@ -92,6 +96,6 @@ private:
 
 };
 
-} // namespace APMDevice
+} // namespace APM
 
-#endif //APM_APMDEVICE_HPP
+#endif //APM_APMPLATFORM_HPP
