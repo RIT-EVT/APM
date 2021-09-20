@@ -1,21 +1,21 @@
 /**
- * Source code for APMDevice class
+ * Source code for APMPlatform class
  */
 
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/time.hpp>
-#include "APM/APMDevice.hpp"
+#include "APM/APMPlatform.hpp"
 
 namespace APM {
 
-APMDevice::APMDevice(APMUart &apmUart, APM::DEV::Sim100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
+APMPlatform::APMPlatform(APMUart &apmUart, APM::DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
                      IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio)
         :   apmUart(apmUart), sim100(sim100),
             accessorySW_GPIO(accessorySwGpio), chargeSW_GPIO(chargeSwGpio),
             vicorSW_GPIO(vicorSwGpio), keyOnSw_GPIO(keyOnSwGpio) {
 }
 
-int APMDevice::offToAccessoryMode() {
+int APMPlatform::offToAccessoryMode() {
     apmUart.printDebugString("Transitioning from OFF -> ACCESSORY\n\r");
     accessorySW_GPIO.writePin(IO::GPIO::State::HIGH);
     // TODO: Send Accessory Mode CAN Message and start sending on timer (interrupt)
@@ -28,7 +28,7 @@ int APMDevice::offToAccessoryMode() {
     return 0;
 }
 
-int APMDevice::accessoryToOnMode() {
+int APMPlatform::accessoryToOnMode() {
     apmUart.printDebugString("Transitioning from ACCESSORY -> ON\n\r");
     vicorSW_GPIO.writePin(IO::GPIO::State::HIGH);
     apmUart.printDebugString("Vicor_SW Closed\n\r");
@@ -47,7 +47,7 @@ int APMDevice::accessoryToOnMode() {
     return 0;
 }
 
-int APMDevice::onToAccessoryMode() {
+int APMPlatform::onToAccessoryMode() {
     // TODO: Send Accessory Mode CAN Message
     // Alerts other boards to begin transition to accessory mode
 
@@ -77,11 +77,11 @@ int APMDevice::onToAccessoryMode() {
     return 0;
 }
 
-APMUart & APMDevice::getApmUart() const {
+APMUart & APMPlatform::getApmUart() const {
     return apmUart;
 }
 
-int APMDevice::checkOnSw() {
+int APMPlatform::checkOnSw() {
     apmUart.printDebugString("Manually checking on switch status\n\r");
 
     IO::GPIO::State keyOnSwState = keyOnSw_GPIO.readPin();
@@ -101,7 +101,7 @@ int APMDevice::checkOnSw() {
     return 0;
 }
 
-APMMode APMDevice::getCurrentMode() const {
+APMMode APMPlatform::getCurrentMode() const {
     return currentMode;
 }
 

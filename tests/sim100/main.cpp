@@ -6,7 +6,7 @@
 #include <EVT/io/pin.hpp>
 #include <EVT/io/UART.hpp>
 #include <cstring>
-#include <dev/Sim100.hpp>
+#include <dev/SIM100.hpp>
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
@@ -23,8 +23,8 @@ int main() {
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(BAUD_RATE);
     IO::CAN& can = IO::getCAN<IO::Pin::PA_12, IO::Pin::PA_11>();
 
-    // Setup Sim100 Device
-    auto sim100 = APM::DEV::Sim100(can);
+    // Setup SIM100 Device
+    auto sim100 = APM::DEV::SIM100(can);
 
     // String to store user input
     char buf[BUF_SIZE];
@@ -58,7 +58,7 @@ int main() {
             }
 
         } else if (strncmp("m", buf, BUF_SIZE) == 0) {
-            uint16_t setVoltage = APM::DEV::Sim100::DEV1_MAX_BATTERY_VOLTAGE;
+            uint16_t setVoltage = APM::DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE;
             uint16_t receivedVoltage = 0;
             uart.printf("Setting GFD Max Voltage to %d V\n\r", setVoltage);
 
@@ -73,7 +73,7 @@ int main() {
         } else if (strncmp("i", buf, BUF_SIZE) == 0) {
             uart.printf("Reading the isolation status of the SIM100 board\n\r");
             auto errorCode = sim100.getIsolationState();
-            if (errorCode == APM::DEV::Sim100::IsolationStateResponse::NoError) {
+            if (errorCode == APM::DEV::SIM100::IsolationStateResponse::NoError) {
                 uart.printf("No Errors detected!\n\r");
             } else {
                 uart.printf("Error detected: %d\n\r", static_cast<uint8_t>(errorCode));

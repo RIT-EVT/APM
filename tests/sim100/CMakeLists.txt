@@ -5,7 +5,7 @@ make_exe(${SIM100} main.cpp)
 
 # Add target sources
 target_sources(${SIM100} PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/dev/Sim100.cpp)
+        ${CMAKE_SOURCE_DIR}/src/dev/SIM100.cpp)
 
 # Expose headers
 target_include_directories(sim100

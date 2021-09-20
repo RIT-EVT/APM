@@ -14,7 +14,7 @@ namespace IO = EVT::core::IO;
  * fault detection board.  For documentation on the CAN interface please see:
  * {@link https://sendyne.com/Products/SIM100%20Isolation%20Monitor.html}
  */
-class Sim100 {
+class SIM100 {
 public:
 
     constexpr static uint32_t CAN_RESPONSE_ID = 0x0A100100;
@@ -42,7 +42,7 @@ public:
      *
      * @param can
      */
-    Sim100(IO::CAN& can);
+    SIM100(IO::CAN& can);
 
     /**
      * Returns the part name into the relevant buf variable.  The max length of

@@ -1,19 +1,19 @@
 /**
- * Contains the source for class Sim100
+ * Contains the source for class SIM100
  */
 
 #include <cstring>
-#include <dev/Sim100.hpp>
+#include <dev/SIM100.hpp>
 #include <EVT/utils/time.hpp>
 
 namespace APM::DEV {
 
 namespace IO = EVT::core::IO;
 
-Sim100::Sim100(IO::CAN &can) : can(can) {
+SIM100::SIM100(IO::CAN &can) : can(can) {
 }
 
-int Sim100::sendDataRequestMessage(RequestMux requestType, IO::CANMessage &responseMessage) {
+int SIM100::sendDataRequestMessage(RequestMux requestType, IO::CANMessage &responseMessage) {
     constexpr uint8_t payloadSize = 1;
     auto requestMuxByte = static_cast<uint8_t>(requestType);
     uint8_t payload[payloadSize] = {requestMuxByte};
@@ -21,14 +21,14 @@ int Sim100::sendDataRequestMessage(RequestMux requestType, IO::CANMessage &respo
     return sendMessage(payloadSize, &payload[0], responseMessage);
 }
 
-int Sim100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &responseMessage,
+int SIM100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &responseMessage,
                         bool expectResponse) {
     if (dataLength < 1) {
         return 1;
     }
 
     uint8_t requestMuxByte = payload[0];
-    IO::CANMessage requestMessage(Sim100::CAN_REQUEST_ID, dataLength, &payload[0]);
+    IO::CANMessage requestMessage(SIM100::CAN_REQUEST_ID, dataLength, &payload[0]);
     can.transmit(requestMessage);
     /* TODO: Implement CAN filtering to only receive SIM100 CAN messages here.
        This entire function will be updated for better handling with CAN Open integration so this
@@ -49,7 +49,7 @@ int Sim100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &re
     return 0;
 }
 
-int Sim100::getPartName(char *buf, size_t size) {
+int SIM100::getPartName(char *buf, size_t size) {
     if (size < (MAX_PART_NAME_LEN + 1)) {  // +1 for null terminator
         return 1;
     }
@@ -97,7 +97,7 @@ int Sim100::getPartName(char *buf, size_t size) {
     return 0;
 }
 
-uint16_t Sim100::setMaxWorkingVoltage(uint16_t maxVoltage) {
+uint16_t SIM100::setMaxWorkingVoltage(uint16_t maxVoltage) {
     constexpr uint8_t payloadSize = 3;  // 1 byte for request type.  2 bytes for max voltage data
     uint16_t returnVoltage = 0;
     auto requestMuxByte = static_cast<uint8_t>(RequestMux::SET_MAX_BATTERY_VOLTAGE);
@@ -130,7 +130,7 @@ uint16_t Sim100::setMaxWorkingVoltage(uint16_t maxVoltage) {
     return returnVoltage;
 }
 
-Sim100::IsolationStateResponse Sim100::getIsolationState() {
+SIM100::IsolationStateResponse SIM100::getIsolationState() {
     IO::CANMessage responseMessage;
     uint8_t *responsePayload;
     uint8_t statusByte;
@@ -150,23 +150,23 @@ Sim100::IsolationStateResponse Sim100::getIsolationState() {
         statusByte = responsePayload[1];
 
         // Check for hardware error
-        if (statusByte & (1 << static_cast<uint8_t>(Sim100::StatusBitShift::HARDWARE_ERROR))) {
+        if (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::HARDWARE_ERROR))) {
             return IsolationStateResponse::HardwareError;  // Diagnose and service the system
         }
-    } while ((statusByte & (1 << static_cast<uint8_t>(Sim100::StatusBitShift::NO_NEW_ESTIMATES))) ||
-            (statusByte & (1 << static_cast<uint8_t>(Sim100::StatusBitShift::HIGH_UNCERTAINTY))));
+    } while ((statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::NO_NEW_ESTIMATES))) ||
+            (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::HIGH_UNCERTAINTY))));
     // Try to receive isolation state again if no new estimates or high uncertainty
 
-    if (statusByte & (1 << static_cast<uint8_t>(Sim100::StatusBitShift::HIGH_BATTERY_VOLTAGE))) {
+    if (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::HIGH_BATTERY_VOLTAGE))) {
         return IsolationStateResponse::HighBatteryVoltage;
     }
 
-    if (statusByte & (1 << static_cast<uint8_t>(Sim100::StatusBitShift::LOW_BATTERY_VOLTAGE))) {
+    if (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::LOW_BATTERY_VOLTAGE))) {
         return IsolationStateResponse::LowBatteryVoltage;
     }
 
-    if (statusByte & (1 << static_cast<uint8_t>(Sim100::StatusBitShift::ISO1)) ||
-            statusByte & (1 << static_cast<uint8_t>(Sim100::StatusBitShift::ISO0))) {
+    if (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::ISO1)) ||
+            statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::ISO0))) {
         return IsolationStateResponse::IsolationError;
     }
 
@@ -174,7 +174,7 @@ Sim100::IsolationStateResponse Sim100::getIsolationState() {
     return IsolationStateResponse::NoError;
 }
 
-int Sim100::restartSIM100() {
+int SIM100::restartSIM100() {
     constexpr uint8_t payloadSize = 5;  // 1 byte for request type.  4 bytes for expected command
     auto requestMuxByte = static_cast<uint8_t>(RequestMux::RESTART_SIM100);
     IO::CANMessage responseMessage;
