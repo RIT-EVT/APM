@@ -18,7 +18,7 @@ Docs
 
 To see documentation for EVT-core please see `EVT-core <https://evt-core.readthedocs.io/en/latest/>`_
 
-The APMManager is designed to control the power distribution for the DEV1 electric
+The APM is designed to control the power distribution for the DEV1 electric
 dirtbike designed by the EVT team.  It will control the bike start up
 sequence, provide 12V and 5V power to the bike electronic systems (excluding
 main motor), and detect faults in the power system.
