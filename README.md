@@ -1,19 +1,19 @@
-# APM
+# APMManager
 ## Overview
 
 This project holds the code for the RIT Electric Vehicles Team's (EVT)
-Auxiliary Power Module (APM).  To see our main code repository please see
+Auxiliary Power Module (APMManager).  To see our main code repository please see
 [EVT-core](https://github.com/RIT-EVT/EVT-core).
 
-The APM is designed to control the power distribution for the DEV1 electric
+The APMManager is designed to control the power distribution for the DEV1 electric
 dirtbike designed by the EVT team.  It will control the bike start up
 sequence, provide 12V and 5V power to the bike electronic systems (excluding
 main motor), and detect faults in the power system.
 
-Documentation on the APM Multidisciplanary Senior Design Project can be found
-here: [APM Confluence](https://wiki.rit.edu/display/P21261/P21261+Project+Overview)
+Documentation on the APMManager Multidisciplanary Senior Design Project can be found
+here: [APMManager Confluence](https://wiki.rit.edu/display/P21261/P21261+Project+Overview)
 
-![APM System Architecture](./assets/DEV1%20APM%20Architecture.png)
+![APMManager System Architecture](./assets/DEV1%20APM%20Architecture.png)
 
 ## Build
 The compilation process is handled via CMake and in general follows standard

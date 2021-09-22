@@ -3,7 +3,7 @@
  */
 
 #include <cstring>
-#include <dev/SIM100.hpp>
+#include <APM/dev/SIM100.hpp>
 #include <EVT/utils/time.hpp>
 
 namespace APM::DEV {
@@ -187,4 +187,4 @@ int SIM100::restartSIM100() {
 }
 
 
-}  // namespace APM::DEV
+}  // namespace APMManager::DEV

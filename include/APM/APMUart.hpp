@@ -71,13 +71,13 @@ private:
 
     static constexpr char MINICOM_CLEAR_DISPLAY[5]= "\x1B\x5B\x32\x4A";
 
-    // Pointer to the APM UART device
+    // Pointer to the APMManager UART device
     IO::UART *apmUart = nullptr;
 
     // Boolean determining whether or not debug statements will be printed to the user
     bool apmDebugPrint;
 };
 
-} // namespace APM
+} // namespace APMManager
 
 #endif //APM_APM_UART_H
