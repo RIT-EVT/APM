@@ -132,6 +132,6 @@ private:
                     bool expectResponse = true);
 };
 
-}  // namespace APMManager::Dev
+}  // namespace APM::Dev
 
 #endif //EVT_SIM100_H

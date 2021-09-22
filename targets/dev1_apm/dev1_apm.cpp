@@ -93,7 +93,7 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
     return 0;
 }
 
-}  // namespace APMManager
+}  // namespace APM
 
 int main() {
     // Initialize IO Objects

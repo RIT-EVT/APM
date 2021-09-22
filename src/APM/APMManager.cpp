@@ -105,4 +105,4 @@ APMMode APMManager::getCurrentMode() const {
     return currentMode;
 }
 
-}  // namespace APMManager
+}  // namespace APM

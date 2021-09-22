@@ -53,4 +53,4 @@ char *APMUart::gets(char *buf, size_t size) const {
     return apmUart->gets(buf, size);
 }
 
-}  // namespace APMManager
+}  // namespace APM

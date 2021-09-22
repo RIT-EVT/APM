@@ -187,4 +187,4 @@ int SIM100::restartSIM100() {
 }
 
 
-}  // namespace APMManager::DEV
+}  // namespace APM::DEV

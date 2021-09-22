@@ -96,6 +96,6 @@ private:
 
 };
 
-} // namespace APMManager
+} // namespace APM
 
 #endif //APM_APMMANAGER_HPP

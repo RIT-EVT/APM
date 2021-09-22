@@ -78,6 +78,6 @@ private:
     bool apmDebugPrint;
 };
 
-} // namespace APMManager
+} // namespace APM
 
 #endif //APM_APM_UART_H
