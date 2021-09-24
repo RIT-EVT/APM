@@ -49,6 +49,7 @@ int main() {
             uart.printf("\t'm': Set the maximum voltage.  Uses DEV1_MAX_VOLTAGE\n\r");
             uart.printf("\t'i': Read the isolation status.\n\r");
             uart.printf("\t'r': Restarts the SIM100 device.\n\r");
+            uart.printf("\r'v': Gets the SIM100 firmware version\n\r");
         } else if (strncmp("n", buf, BUF_SIZE) == 0) {
             uart.printf("Getting Device Manufacturer name\n\r");
             if (sim100.getPartName(buf, BUF_SIZE) != 0) {
@@ -58,7 +59,8 @@ int main() {
             }
 
         } else if (strncmp("m", buf, BUF_SIZE) == 0) {
-            uint16_t setVoltage = APM::DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE;
+//            uint16_t setVoltage = APM::DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE;
+            uint16_t setVoltage = 50;
             uint16_t receivedVoltage = 0;
             uart.printf("Setting GFD Max Voltage to %d V\n\r", setVoltage);
 
@@ -84,6 +86,13 @@ int main() {
                 uart.printf("Restart successful!!\n\r");
             } else {
                 uart.printf("Restart failed.\n\r");
+            }
+        } else if (strncmp("v", buf, BUF_SIZE) == 0) {
+            uart.printf("Reading Version Number\n\r");
+            if (sim100.getVersion(buf, BUF_SIZE) != 0) {
+                uart.printf("An error occurred when retrieving the device version\n\r");
+            } else {
+                uart.printf("The device version is: %s\n\r", buf);
             }
         } else {
                 uart.printf("Unrecognized command\n\r");
