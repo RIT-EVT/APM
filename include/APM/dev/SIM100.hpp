@@ -39,19 +39,6 @@ public:
     };
 
     /**
-     * Class to represent the possible response values for an Error Flag request
-     */
-    enum class ErrorFlagsResponse {
-        NO_ERROR = 0,
-        ERR_VPWR = 2,  // SIM100 Power supply is out of range
-        ERR_VEXI = 3,  // Excitation voltage is out of range
-        ERR_VXR = 4,   // Connection to power rails is reversed
-        ERR_CH = 5,    // Connection to chassis is broken
-        ERR_VX1 = 6,   // Connection to positive power rail is broken
-        ERR_VX2 = 7    // Conection to negative power rail is broken
-    };
-
-    /**
      *
      * @param can
      */
@@ -87,14 +74,6 @@ public:
      * @return 0 on success.  Returns a relevant error code on failure.
      */
     IsolationStateResponse getIsolationState();
-
-    /**
-     * Requests the Error Flags.  This is used to diagnose a hardware error
-     * on the GFD board
-     * @return returns the first error bit detected as an ErrorFlagsResponse.  Will not catch
-     * multiple errors if they occur
-     */
-    ErrorFlagsResponse getErrorFlags();
 
     /**
      * Restarts the SIM100 board.

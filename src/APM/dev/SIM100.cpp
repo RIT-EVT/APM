@@ -160,7 +160,7 @@ SIM100::IsolationStateResponse SIM100::getIsolationState() {
                      (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::HIGH_UNCERTAINTY)));
 
         if (queryAgain) {
-            EVT::core::time::wait(1000);
+            EVT::core::time::wait(100);
         }
 
     } while (queryAgain);
@@ -193,10 +193,6 @@ int SIM100::restartSIM100() {
     sendMessage(payloadSize, payload, responseMessage, false);
 
     return 0;
-}
-
-SIM100::ErrorFlagsResponse SIM100::getErrorFlags() {
-    return SIM100::ErrorFlagsResponse::NO_ERROR;
 }
 
 int SIM100::getVersion(char *buf, size_t size) {
