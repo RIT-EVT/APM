@@ -26,7 +26,7 @@ void APMUart::startupMessage() const {
     apmUart->printf("            @@@@@@@@@@@@@@@@@@@@@@@@@@@         *///////                @@@@@@                      \n\r");
     apmUart->printf("           @@@@@@@@@@@@@@@@@@@@@@@@@@@          */////                 @@@@@@                       \n\r");
 
-    apmUart->printf("\nDEV1 APMPlatform Initializing...\n\n\r");
+    apmUart->printf("\nDEV1 APMManager Initializing...\n\n\r");
 }
 
 void APMUart::setDebugPrint(bool debugPrint) {

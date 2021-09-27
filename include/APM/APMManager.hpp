@@ -1,14 +1,14 @@
 /**
- * Class to represent the APMPlatform Object.  Holds references
+ * Class to represent the APMManager Object.  Holds references
  * to many of the key objects used by this device
  */
 
-#ifndef APM_APMPLATFORM_HPP
-#define APM_APMPLATFORM_HPP
+#ifndef APM_APMMANAGER_HPP
+#define APM_APMMANAGER_HPP
 
 #include <EVT/io/pin.hpp>
 #include <EVT/io/UART.hpp>
-#include <dev/SIM100.hpp>
+#include <APM/dev/SIM100.hpp>
 #include "APMUart.hpp"
 
 namespace APM {
@@ -21,7 +21,7 @@ enum class APMMode {
     ON = 2u
 };
 
-class APMPlatform {
+class APMManager {
 public:
     static constexpr IO::Pin ACCESSORY_SW = IO::Pin::PA_5;
     static constexpr IO::Pin CHARGE_SW = IO::Pin::PA_6;
@@ -29,11 +29,11 @@ public:
     static constexpr IO::Pin KEY_ON_UC = IO::Pin::PB_5;
 
     /**
-     * Create a new APMPlatform
+     * Create a new APMManager
      * Initializes the IO Devices
      * @param baud the baudrate for the UART device
      */
-    explicit APMPlatform(APMUart &apmUart, APM::DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
+    explicit APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
                        IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio);
 
     /**
@@ -73,19 +73,19 @@ public:
     int checkOnSw();
 
 private:
-    // Holds the current mode of the APM device
+    // Holds the current mode of the APMManager device
     APMMode currentMode = APMMode::OFF;
 
     // Holds a reference to the APMUart device
     APMUart &apmUart;
 
     // Holds a reference to the SIM100 GFD device
-    APM::DEV::SIM100 &sim100;
+    DEV::SIM100 &sim100;
 
     // Controls battery power to bike electronics.
     IO::GPIO &accessorySW_GPIO;
 
-    // Controls charging the APM backup battery.
+    // Controls charging the APMManager backup battery.
     IO::GPIO &chargeSW_GPIO;
 
     // Controls turning on the Vicor Power.  Uses main pack to power electronics
@@ -98,4 +98,4 @@ private:
 
 } // namespace APM
 
-#endif //APM_APMPLATFORM_HPP
+#endif //APM_APMMANAGER_HPP

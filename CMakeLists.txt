@@ -1,5 +1,5 @@
 ###############################################################################
-# Top level CMakeList for building the EVT APM source code
+# Top level CMakeList for building the EVT APMManager source code
 ###############################################################################
 cmake_minimum_required(VERSION 3.15)
 
@@ -12,35 +12,27 @@ include(${EVT_CORE_DIR}/cmake/evt-core_install.cmake)
 ###############################################################################
 # Project Setup
 ###############################################################################
+set(BOARD_LIB_NAME   APM)
+if("${BOARD_LIB_NAME}" STREQUAL CHANGE_ME)
+    message(FATAL_ERROR
+            "You must set the template project name in CmakeLists.txt")
+endif()
+
+file(STRINGS version.txt APM_VERSION)
+
 project(APM
-        VERSION 0.0.1
+        VERSION ${APM_VERSION}
         LANGUAGES CXX C
         )
 
-add_executable(${PROJECT_NAME} targets/dev1_apm/dev1_apm.cpp)
+add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-        src/APM/APMPlatform.cpp
+        src/APM/APMManager.cpp
         src/APM/APMUart.cpp
-        src/dev/SIM100.cpp
+        src/APM/dev/SIM100.cpp
 )
-
-# Make the main executable have an ".elf" suffix
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_NAME "${PROJECT_NAME}"
-        SUFFIX ".elf"
-        )
-
-# Generate a map file
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
-                                -Wl,-Map=${PROJECT_NAME}.map")
-set(HEX_FILE "${PROJECT_NAME}.hex")
-set(BIN_FILE "${PROJECT_NAME}.bin")
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}> ${HEX_FILE}
-        COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${BIN_FILE}
-        COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
 
 ###############################################################################
 # Handle dependencies
@@ -64,4 +56,4 @@ install_and_expose(${PROJECT_NAME})
 ###############################################################################
 # Build Test Code
 ###############################################################################
-add_subdirectory(tests)
+add_subdirectory(targets)
