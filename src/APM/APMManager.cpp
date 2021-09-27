@@ -44,10 +44,15 @@ int APMManager::accessoryToOnMode() {
     apmUart.printDebugString("Entered On Mode\n\r");
     apmUart.printDebugString("---------------------------------------------\n\r");
 
+    sim100.setMaxWorkingVoltage(DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE);
+
     return 0;
 }
 
 int APMManager::onToAccessoryMode() {
+
+    // TODO: Turn off GFD Isolation Check
+
     // TODO: Send Accessory Mode CAN Message
     // Alerts other boards to begin transition to accessory mode
 

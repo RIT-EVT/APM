@@ -12,6 +12,17 @@
 #include <cstdio>
 #include <APM/dev/SIM100.hpp>
 
+// Pointer to the APM Manager
+APM::APMManager *apmManagerPtr = nullptr;
+
+/**
+ * Handler for timer to poll the SIM100 board to check for isolation faults
+ * @param htim pointer to the timer device struct
+ */
+void sim100IRQHandler(TIM_HandleTypeDef *htim) {
+    apmManagerPtr->
+}
+
 namespace IO = EVT::core::IO;
 
 namespace APM {
@@ -23,10 +34,9 @@ constexpr IO::Pin CAN_TX = IO::Pin::PA_12;
 constexpr IO::Pin CAN_RX = IO::Pin::PA_11;
 
 char buf[BUF_SIZE];
-APMManager *apmDevicePtr;
 
 void handleKeyOnInterrupt(IO::GPIO *gpio) {
-    auto apmUart = apmDevicePtr->getApmUart();
+    auto apmUart = apmManagerPtr->getApmUart();
     auto state = gpio->readPin();
     char outStr[BUF_SIZE];
 
@@ -34,10 +44,10 @@ void handleKeyOnInterrupt(IO::GPIO *gpio) {
              state == IO::GPIO::State::HIGH ? "rising" : "falling");
     apmUart.printDebugString(outStr);
 
-    if (state == IO::GPIO::State::HIGH && apmDevicePtr->getCurrentMode() == APMMode::ACCESSORY) {
-        apmDevicePtr->accessoryToOnMode();
-    } else if (state == IO::GPIO::State::LOW && apmDevicePtr->getCurrentMode() == APMMode::ON) {
-        apmDevicePtr->onToAccessoryMode();
+    if (state == IO::GPIO::State::HIGH && apmManagerPtr->getCurrentMode() == APMMode::ACCESSORY) {
+        apmManagerPtr->accessoryToOnMode();
+    } else if (state == IO::GPIO::State::LOW && apmManagerPtr->getCurrentMode() == APMMode::ON) {
+        apmManagerPtr->onToAccessoryMode();
     } else {
         // TODO: Handle error
         apmUart.printString("ERROR: Key_On_SW state does not align with current mode\n\r");
@@ -86,7 +96,7 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
         apmUart->setDebugPrint(true);
 //        apmUart -> getc();
 //        apmUart -> setDebugPrint(false);
-        while (1) {}  // TODO: Update to wait for user input once UART interrupts are implemented
+        while (true) {}  // TODO: Update to wait for user input once UART interrupts are implemented
         // Currently it requires an entire device reset to exit blocking mode.
     }
 
@@ -110,25 +120,25 @@ int main() {
     auto sim100 = APM::DEV::SIM100(can);
 
     // Create Data Objects
-    APM::APMManager apmDevice = APM::APMManager(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
-                                              keyOnSw_GPIO, vicorSW_GPIO);
-    APM::apmDevicePtr = &apmDevice;
+    APM::APMManager apmManager = APM::APMManager(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
+                                                 keyOnSw_GPIO, vicorSW_GPIO);
+    apmManagerPtr = &apmManager;
 
     apmUart.setDebugPrint(true);
     apmUart.startupMessage();
 
     // Initially Load Device into Accessory Mode on Power On
-    APM::apmDevicePtr->offToAccessoryMode();
+    apmManagerPtr->offToAccessoryMode();
 
     // Check if key_sw is high
-    APM::apmDevicePtr->checkOnSw();
+    apmManagerPtr->checkOnSw();
 
     // Set up interrupt for key signal
     keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING_FALLING, APM::handleKeyOnInterrupt);
 
     // Display Prompt to user
     apmUart.setDebugPrint(false);
-    while (1) {
-        userPrompt(*APM::apmDevicePtr, &apmUart);
+    while (true) {
+        userPrompt(*apmManagerPtr, &apmUart);
     }
 }

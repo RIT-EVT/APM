@@ -42,6 +42,9 @@ public:
      */
     [[nodiscard]] APMUart& getApmUart() const;
 
+
+    [[nodiscard]] DEV::SIM100& getSim100() const;
+
     /**
      * Returns the current mode
      * @return the current mode
