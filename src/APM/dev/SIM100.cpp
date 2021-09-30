@@ -135,6 +135,8 @@ SIM100::IsolationStateResponse SIM100::getIsolationState() {
     uint8_t *responsePayload;
     uint8_t statusByte;
 
+    bool queryAgain = false;
+
     do {
         if (sendDataRequestMessage(RequestMux::ISOLATION_STATE, responseMessage) != 0) {
             return IsolationStateResponse::CANError;
@@ -153,8 +155,15 @@ SIM100::IsolationStateResponse SIM100::getIsolationState() {
         if (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::HARDWARE_ERROR))) {
             return IsolationStateResponse::HardwareError;  // Diagnose and service the system
         }
-    } while ((statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::NO_NEW_ESTIMATES))) ||
-            (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::HIGH_UNCERTAINTY))));
+
+        queryAgain = (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::NO_NEW_ESTIMATES))) ||
+                     (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::HIGH_UNCERTAINTY)));
+
+        if (queryAgain) {
+            EVT::core::time::wait(100);
+        }
+
+    } while (queryAgain);
     // Try to receive isolation state again if no new estimates or high uncertainty
 
     if (statusByte & (1 << static_cast<uint8_t>(SIM100::StatusBitShift::HIGH_BATTERY_VOLTAGE))) {
@@ -182,6 +191,51 @@ int SIM100::restartSIM100() {
     uint8_t payload[payloadSize] = {requestMuxByte, 0x01, 0x23, 0x45, 0x67};
 
     sendMessage(payloadSize, payload, responseMessage, false);
+
+    return 0;
+}
+
+int SIM100::getVersion(char *buf, size_t size) {
+    if (size < (MAX_VERSION_LEN + 1)) {  // +1 for null terminator
+        return 1;
+    }
+
+    memset(buf, 0, MAX_VERSION_LEN + 1);
+
+    IO::CANMessage responseMessage;
+    RequestMux versionRequestMUX;
+    int bufOffset = 0;
+
+    for (int partNameIdx = 0; partNameIdx <= 2; partNameIdx++) {
+        switch (partNameIdx) {
+            case(0):
+                versionRequestMUX = RequestMux::VERSION_0;
+                break;
+            case(1):
+                versionRequestMUX = RequestMux::VERSION_1;
+                break;
+            case(2):
+                versionRequestMUX = RequestMux::VERSION_2;
+                break;
+            default:
+                return 1;
+        }
+
+        sendDataRequestMessage(versionRequestMUX, responseMessage);
+        uint8_t dataLength = responseMessage.getDataLength();
+        if (dataLength != 5) {
+            return 1;
+        }
+
+        uint8_t* payload = responseMessage.getPayload();
+
+        // Copy values from payload into the buf
+        for (int idx = 1; idx <= dataLength; idx++) {
+            buf[(idx-1) + bufOffset] = payload[idx];
+        }
+
+        bufOffset += 4;  // 4 bytes per message
+    }
 
     return 0;
 }

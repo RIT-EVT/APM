@@ -42,7 +42,7 @@ public:
      *
      * @param can
      */
-    SIM100(IO::CAN& can);
+    explicit SIM100(IO::CAN& can);
 
     /**
      * Returns the part name into the relevant buf variable.  The max length of
@@ -52,6 +52,14 @@ public:
      * @return 0 on success
      */
     int getPartName(char* buf, size_t size);
+
+    /**
+     * Reads the firmware version from the board
+     * @param buf the char array to store the firmware version into
+     * @param size the allocated size of buf
+     * @return 0 on success
+     */
+    int getVersion(char* buf, size_t size);
 
     /**
      * Sets the max working voltage for the SIM100 load
@@ -82,6 +90,9 @@ private:
         PART_NAME_1 = 0x02,
         PART_NAME_2 = 0x03,
         PART_NAME_3 = 0x04,
+        VERSION_0 = 0x05,
+        VERSION_1 = 0x06,
+        VERSION_2 = 0x07,
         RESTART_SIM100 = 0xC1,
         SET_MAX_BATTERY_VOLTAGE = 0xF0,
         ISOLATION_STATE = 0xE0
@@ -105,6 +116,9 @@ private:
 
     // Max length for the part name based on SIM100 CAN datasheet
     constexpr static size_t MAX_PART_NAME_LEN = 16;
+
+    // Max length for the version string based on SIM100 CAN datasheet
+    constexpr static size_t MAX_VERSION_LEN = 12;
 
     // The CAN device to send and receive CAN messages with
     IO::CAN &can;
