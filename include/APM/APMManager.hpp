@@ -9,6 +9,8 @@
 #include <EVT/io/pin.hpp>
 #include <EVT/io/UART.hpp>
 #include <APM/dev/SIM100.hpp>
+#include <EVT/dev/Timer.hpp>
+#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 #include "APMUart.hpp"
 
 namespace APM {
@@ -34,7 +36,7 @@ public:
      * @param baud the baudrate for the UART device
      */
     explicit APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
-                       IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio);
+                        IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer);
 
     /**
      * Returns the APMUart object by reference
@@ -43,6 +45,10 @@ public:
     [[nodiscard]] APMUart& getApmUart() const;
 
 
+    /**
+     * Returns a reference to the Sim100 object for this class
+     * @return reference to the SIM100 module
+     */
     [[nodiscard]] DEV::SIM100& getSim100() const;
 
     /**
@@ -96,6 +102,8 @@ private:
 
     // GPIO input that reads the value of the key signal
     IO::GPIO &keyOnSw_GPIO;
+
+    EVT::core::DEV::Timerf302x8 &gfdTimer;
 
 };
 

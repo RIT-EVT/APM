@@ -6,13 +6,36 @@
 #include <EVT/utils/time.hpp>
 #include <APM/APMManager.hpp>
 
+APM::APMManager *apmManagerPtr = nullptr;
+
+/**
+ * Handler for timer to poll the SIM100 board to check for isolation faults
+ * @param htim pointer to the timer device struct
+ */
+void sim100IRQHandler(void *htim) {
+    if (apmManagerPtr->getCurrentMode() != APM::APMMode::ON) {
+        // Shouldn't happen, but disable timer if you get here while device isn't on
+
+    }
+    auto sim100State = apmManagerPtr->getSim100().getIsolationState();
+    if (sim100State != APM::DEV::SIM100::IsolationStateResponse::NoError) {
+        apmManagerPtr->onToAccessoryMode();
+    }
+}
+
+void sim100StartupTimer(void *htim) {
+    // Start the SIM100 polling check
+
+}
+
 namespace APM {
 
 APMManager::APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
-                     IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio)
-        :   apmUart(apmUart), sim100(sim100),
-            accessorySW_GPIO(accessorySwGpio), chargeSW_GPIO(chargeSwGpio),
-            vicorSW_GPIO(vicorSwGpio), keyOnSw_GPIO(keyOnSwGpio) {
+                       IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer)
+        : apmUart(apmUart), sim100(sim100),
+          accessorySW_GPIO(accessorySwGpio), chargeSW_GPIO(chargeSwGpio),
+          vicorSW_GPIO(vicorSwGpio), keyOnSw_GPIO(keyOnSwGpio), gfdTimer(gfdTimer) {
+    apmManagerPtr = this;
 }
 
 int APMManager::offToAccessoryMode() {
@@ -44,6 +67,8 @@ int APMManager::accessoryToOnMode() {
     apmUart.printDebugString("Entered On Mode\n\r");
     apmUart.printDebugString("---------------------------------------------\n\r");
 
+    // Set up GFD with interrupts.
+    sim100.restartSIM100();
     sim100.setMaxWorkingVoltage(DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE);
 
     return 0;
@@ -108,6 +133,10 @@ int APMManager::checkOnSw() {
 
 APMMode APMManager::getCurrentMode() const {
     return currentMode;
+}
+
+DEV::SIM100 &APMManager::getSim100() const {
+    return sim100;
 }
 
 }  // namespace APM

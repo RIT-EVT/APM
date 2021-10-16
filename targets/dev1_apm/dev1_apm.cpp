@@ -11,17 +11,10 @@
 #include <APM/APMManager.hpp>
 #include <cstdio>
 #include <APM/dev/SIM100.hpp>
+#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 
 // Pointer to the APM Manager
 APM::APMManager *apmManagerPtr = nullptr;
-
-/**
- * Handler for timer to poll the SIM100 board to check for isolation faults
- * @param htim pointer to the timer device struct
- */
-void sim100IRQHandler(TIM_HandleTypeDef *htim) {
-    apmManagerPtr->
-}
 
 namespace IO = EVT::core::IO;
 
@@ -119,9 +112,11 @@ int main() {
     auto apmUart = APM::APMUart(&uart);
     auto sim100 = APM::DEV::SIM100(can);
 
+    auto apmTimer = EVT::core::DEV::Timerf302x8(TIM2, 5000);
+
     // Create Data Objects
     APM::APMManager apmManager = APM::APMManager(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
-                                                 keyOnSw_GPIO, vicorSW_GPIO);
+                                                 keyOnSw_GPIO, vicorSW_GPIO, apmTimer);
     apmManagerPtr = &apmManager;
 
     apmUart.setDebugPrint(true);
