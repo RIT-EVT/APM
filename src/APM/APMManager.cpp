@@ -13,10 +13,16 @@ APM::APMManager *apmManagerPtr1 = nullptr;
  * @param htim pointer to the timer device struct
  */
 void sim100IsolationCheckIRQHandler(void *htim) {
+    if (!apmManagerPtr1->isIsolationChecking()) {
+        // Do not perform GFD Checking
+        return;
+    }
+
     if (apmManagerPtr1->getCurrentMode() != APM::APMMode::ON) {
         // Shouldn't happen, but disable timer if you get here while device isn't on
         auto& timer = apmManagerPtr1->getGFDTimer();
         timer.stopTimer();
+        return;
     }
     auto sim100State = apmManagerPtr1->getSim100().getIsolationState();
     if (sim100State != APM::DEV::SIM100::IsolationStateResponse::NoError) {
@@ -86,7 +92,8 @@ int APMManager::accessoryToOnMode() {
 }
 
 int APMManager::onToAccessoryMode() {
-    // TODO: Turn off GFD Isolation Check
+    // Turn off GFD Isolation Check
+    this->gfdTimer.stopTimer();
 
     // TODO: Send Accessory Mode CAN Message
     // Alerts other boards to begin transition to accessory mode
@@ -151,6 +158,14 @@ DEV::SIM100 &APMManager::getSim100() const {
 
 EVT::core::DEV::Timer &APMManager::getGFDTimer() const {
     return gfdTimer;
+}
+
+bool APMManager::isIsolationChecking() {
+    return this->checkGFDIsolationState;
+}
+
+void APMManager::setCheckGFDIsolationState(bool state) {
+    this->checkGFDIsolationState = state;
 }
 
 }  // namespace APM

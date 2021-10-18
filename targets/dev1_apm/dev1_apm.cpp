@@ -65,7 +65,8 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
         apmUart->printString("\t'h': Help Message\n\r");
         apmUart->printString("\t'd': Debug Mode.  Prints out all debug statements to terminal.  Exit\n\r");
         apmUart->printString("\t     on key press\n\r");
-        apmUart->printString("\t'm': Get Mode.  Returns accessory or on respectively");
+        apmUart->printString("\t'm': Get Mode.  Returns accessory or on respectively\n\r");
+        apmUart->printString("\t'g': Toggle GFD Checking.  Used for debugging\n\r");
     } else if (strncmp("m", buf, BUF_SIZE) == 0) {
         char modeString[10];
         switch (apmDevice.getCurrentMode()) {
@@ -91,6 +92,14 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
 //        apmUart -> setDebugPrint(false);
         while (true) {}  // TODO: Update to wait for user input once UART interrupts are implemented
         // Currently it requires an entire device reset to exit blocking mode.
+    } else if (strncmp("g", buf, BUF_SIZE) == 0) {
+        bool previousState = apmManagerPtr->isIsolationChecking();
+        bool newState = !previousState;
+        apmManagerPtr->setCheckGFDIsolationState(newState);
+        snprintf(buf, BUF_SIZE, "GFD Isolation Checking has been turned %s\n\r" ,(newState ? "ON" : "OFF"));
+        apmUart->printString(buf);
+    } else {
+        apmUart->printString("Unrecognized Command\n\r");
     }
 
     return 0;

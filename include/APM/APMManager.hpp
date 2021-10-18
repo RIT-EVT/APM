@@ -94,6 +94,19 @@ public:
      */
     int checkOnSw();
 
+    /**
+     * Check the debug status to determine if SIM100 should be checked for isolation faults.
+     * @return True if the SIM100 should be checked.  False if not.
+     */
+    bool isIsolationChecking();
+
+    /**
+     * Sets the variable checkGFDIsolationState for debugging.  If set false then the
+     * isolation check is not performed.
+     * @param state The bool state to update the variable to
+     */
+    void setCheckGFDIsolationState(bool state);
+
 private:
 
     // Holds the current mode of the APMManager device
@@ -119,6 +132,9 @@ private:
 
     // Timer instance used to control the GFD polling logic
     EVT::core::DEV::Timer &gfdTimer;
+
+    // Debug Boolean to turn off SIM100 GFD Checking
+    bool checkGFDIsolationState = true;
 
 };
 
