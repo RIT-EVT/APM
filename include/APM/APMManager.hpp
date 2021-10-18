@@ -30,6 +30,12 @@ public:
     static constexpr IO::Pin VICOR_SW = IO::Pin::PA_4;
     static constexpr IO::Pin KEY_ON_UC = IO::Pin::PB_5;
 
+    // Time required for SIM100 to start up before it is ready for operation
+    static constexpr uint32_t SIM100_STARTUP_PERIOD = 5000;
+
+    // Want to poll the SIM100 GFD board for updates every 500 ms
+    static constexpr uint32_t SIM100_POLLING_PERIOD = 500;
+
     /**
      * Create a new APMManager
      * Initializes the IO Devices
@@ -50,6 +56,13 @@ public:
      * @return reference to the SIM100 module
      */
     [[nodiscard]] DEV::SIM100& getSim100() const;
+
+    /**
+     * Gets a reference of the held GFD Timer.  This is used
+     * for interrupts to update the timer behavior as necessary.
+     * @return reference to the Timer object this->gfdTimer
+     */
+    [[nodiscard]] EVT::core::DEV::Timer& getGFDTimer() const;
 
     /**
      * Returns the current mode
@@ -82,6 +95,7 @@ public:
     int checkOnSw();
 
 private:
+
     // Holds the current mode of the APMManager device
     APMMode currentMode = APMMode::OFF;
 
@@ -103,7 +117,8 @@ private:
     // GPIO input that reads the value of the key signal
     IO::GPIO &keyOnSw_GPIO;
 
-    EVT::core::DEV::Timerf302x8 &gfdTimer;
+    // Timer instance used to control the GFD polling logic
+    EVT::core::DEV::Timer &gfdTimer;
 
 };
 

@@ -162,7 +162,6 @@ SIM100::IsolationStateResponse SIM100::getIsolationState() {
         if (queryAgain) {
             EVT::core::time::wait(100);
         }
-
     } while (queryAgain);
     // Try to receive isolation state again if no new estimates or high uncertainty
 

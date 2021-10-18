@@ -6,26 +6,35 @@
 #include <EVT/utils/time.hpp>
 #include <APM/APMManager.hpp>
 
-APM::APMManager *apmManagerPtr = nullptr;
+APM::APMManager *apmManagerPtr1 = nullptr;
 
 /**
  * Handler for timer to poll the SIM100 board to check for isolation faults
  * @param htim pointer to the timer device struct
  */
-void sim100IRQHandler(void *htim) {
-    if (apmManagerPtr->getCurrentMode() != APM::APMMode::ON) {
+void sim100IsolationCheckIRQHandler(void *htim) {
+    if (apmManagerPtr1->getCurrentMode() != APM::APMMode::ON) {
         // Shouldn't happen, but disable timer if you get here while device isn't on
-
+        auto& timer = apmManagerPtr1->getGFDTimer();
+        timer.stopTimer();
     }
-    auto sim100State = apmManagerPtr->getSim100().getIsolationState();
+    auto sim100State = apmManagerPtr1->getSim100().getIsolationState();
     if (sim100State != APM::DEV::SIM100::IsolationStateResponse::NoError) {
-        apmManagerPtr->onToAccessoryMode();
+        apmManagerPtr1->onToAccessoryMode();
     }
 }
 
-void sim100StartupTimer(void *htim) {
+/**
+ * Method to trigger an interrupt once sufficient time has passed for the SIM100 GFD to start up.
+ * Will update the timer to poll the SIM100 for isolation faults using update rate APMManager.SIM100_POLLING_PERIOD
+ * @param htim Pointer to the timer struct for which the interrupt was triggered.
+ */
+void sim100StartupTimerIRQHandler(void *htim) {
     // Start the SIM100 polling check
-
+    auto& timer = apmManagerPtr1->getGFDTimer();
+    timer.stopTimer();
+    timer.setPeriod(APM::APMManager::SIM100_POLLING_PERIOD);
+    timer.startTimer(sim100IsolationCheckIRQHandler);
 }
 
 namespace APM {
@@ -35,7 +44,7 @@ APMManager::APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessor
         : apmUart(apmUart), sim100(sim100),
           accessorySW_GPIO(accessorySwGpio), chargeSW_GPIO(chargeSwGpio),
           vicorSW_GPIO(vicorSwGpio), keyOnSw_GPIO(keyOnSwGpio), gfdTimer(gfdTimer) {
-    apmManagerPtr = this;
+    apmManagerPtr1 = this;
 }
 
 int APMManager::offToAccessoryMode() {
@@ -70,12 +79,13 @@ int APMManager::accessoryToOnMode() {
     // Set up GFD with interrupts.
     sim100.restartSIM100();
     sim100.setMaxWorkingVoltage(DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE);
+    this->gfdTimer.setPeriod(SIM100_STARTUP_PERIOD);
+    this->gfdTimer.startTimer(sim100StartupTimerIRQHandler);
 
     return 0;
 }
 
 int APMManager::onToAccessoryMode() {
-
     // TODO: Turn off GFD Isolation Check
 
     // TODO: Send Accessory Mode CAN Message
@@ -137,6 +147,10 @@ APMMode APMManager::getCurrentMode() const {
 
 DEV::SIM100 &APMManager::getSim100() const {
     return sim100;
+}
+
+EVT::core::DEV::Timer &APMManager::getGFDTimer() const {
+    return gfdTimer;
 }
 
 }  // namespace APM
