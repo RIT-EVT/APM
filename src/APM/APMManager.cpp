@@ -26,8 +26,10 @@ void sim100IsolationCheckIRQHandler(void *htim) {
     }
     auto sim100State = apmManagerPtr1->getSim100().getIsolationState();
     if (sim100State != APM::DEV::SIM100::IsolationStateResponse::NoError) {
+        apmManagerPtr1->getApmUart().printDebugString("SIM100 Error Occurred\n\r");
         apmManagerPtr1->onToAccessoryMode();
     }
+    apmManagerPtr1->getApmUart().printDebugString("SIM100 No Error\n\r");
 }
 
 /**
@@ -83,10 +85,16 @@ int APMManager::accessoryToOnMode() {
     apmUart.printDebugString("---------------------------------------------\n\r");
 
     // Set up GFD with interrupts.
-    sim100.restartSIM100();
-    sim100.setMaxWorkingVoltage(DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE);
-    this->gfdTimer.setPeriod(SIM100_STARTUP_PERIOD);
-    this->gfdTimer.startTimer(sim100StartupTimerIRQHandler);
+    if (isIsolationChecking()) {
+        sim100.restartSIM100();
+        EVT::core::time::wait(100);  // TODO: Remove once CAN Open support is added.
+        sim100.setMaxWorkingVoltage(DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE);
+        this->gfdTimer.setPeriod(SIM100_STARTUP_PERIOD);
+        this->gfdTimer.startTimer(sim100StartupTimerIRQHandler);
+    }
+    else {
+        this->gfdTimer.stopTimer();  // Stop timer just in case it is already running
+    }
 
     return 0;
 }
