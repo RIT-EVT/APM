@@ -11,6 +11,10 @@
 #include <APM/APMManager.hpp>
 #include <cstdio>
 #include <APM/dev/SIM100.hpp>
+#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
+
+// Pointer to the APM Manager
+APM::APMManager *apmManagerPtr = nullptr;
 
 namespace IO = EVT::core::IO;
 
@@ -23,10 +27,9 @@ constexpr IO::Pin CAN_TX = IO::Pin::PA_12;
 constexpr IO::Pin CAN_RX = IO::Pin::PA_11;
 
 char buf[BUF_SIZE];
-APMManager *apmDevicePtr;
 
 void handleKeyOnInterrupt(IO::GPIO *gpio) {
-    auto apmUart = apmDevicePtr->getApmUart();
+    auto apmUart = apmManagerPtr->getApmUart();
     auto state = gpio->readPin();
     char outStr[BUF_SIZE];
 
@@ -34,10 +37,10 @@ void handleKeyOnInterrupt(IO::GPIO *gpio) {
              state == IO::GPIO::State::HIGH ? "rising" : "falling");
     apmUart.printDebugString(outStr);
 
-    if (state == IO::GPIO::State::HIGH && apmDevicePtr->getCurrentMode() == APMMode::ACCESSORY) {
-        apmDevicePtr->accessoryToOnMode();
-    } else if (state == IO::GPIO::State::LOW && apmDevicePtr->getCurrentMode() == APMMode::ON) {
-        apmDevicePtr->onToAccessoryMode();
+    if (state == IO::GPIO::State::HIGH && apmManagerPtr->getCurrentMode() == APMMode::ACCESSORY) {
+        apmManagerPtr->accessoryToOnMode();
+    } else if (state == IO::GPIO::State::LOW && apmManagerPtr->getCurrentMode() == APMMode::ON) {
+        apmManagerPtr->onToAccessoryMode();
     } else {
         // TODO: Handle error
         apmUart.printString("ERROR: Key_On_SW state does not align with current mode\n\r");
@@ -62,7 +65,8 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
         apmUart->printString("\t'h': Help Message\n\r");
         apmUart->printString("\t'd': Debug Mode.  Prints out all debug statements to terminal.  Exit\n\r");
         apmUart->printString("\t     on key press\n\r");
-        apmUart->printString("\t'm': Get Mode.  Returns accessory or on respectively");
+        apmUart->printString("\t'm': Get Mode.  Returns accessory or on respectively\n\r");
+        apmUart->printString("\t'g': Toggle GFD Checking.  Used for debugging\n\r");
     } else if (strncmp("m", buf, BUF_SIZE) == 0) {
         char modeString[10];
         switch (apmDevice.getCurrentMode()) {
@@ -86,8 +90,16 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
         apmUart->setDebugPrint(true);
 //        apmUart -> getc();
 //        apmUart -> setDebugPrint(false);
-        while (1) {}  // TODO: Update to wait for user input once UART interrupts are implemented
+        while (true) {}  // TODO: Update to wait for user input once UART interrupts are implemented
         // Currently it requires an entire device reset to exit blocking mode.
+    } else if (strncmp("g", buf, BUF_SIZE) == 0) {
+        bool previousState = apmManagerPtr->isIsolationChecking();
+        bool newState = !previousState;
+        apmManagerPtr->setCheckGFDIsolationState(newState);
+        snprintf(buf, BUF_SIZE, "GFD Isolation Checking has been turned %s\n\r" ,(newState ? "ON" : "OFF"));
+        apmUart->printString(buf);
+    } else {
+        apmUart->printString("Unrecognized Command\n\r");
     }
 
     return 0;
@@ -109,26 +121,28 @@ int main() {
     auto apmUart = APM::APMUart(&uart);
     auto sim100 = APM::DEV::SIM100(can);
 
+    auto apmTimer = EVT::core::DEV::Timerf302x8(TIM2, 5000);
+
     // Create Data Objects
-    APM::APMManager apmDevice = APM::APMManager(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
-                                              keyOnSw_GPIO, vicorSW_GPIO);
-    APM::apmDevicePtr = &apmDevice;
+    APM::APMManager apmManager = APM::APMManager(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
+                                                 keyOnSw_GPIO, vicorSW_GPIO, apmTimer);
+    apmManagerPtr = &apmManager;
 
     apmUart.setDebugPrint(true);
     apmUart.startupMessage();
 
     // Initially Load Device into Accessory Mode on Power On
-    APM::apmDevicePtr->offToAccessoryMode();
+    apmManagerPtr->offToAccessoryMode();
 
     // Check if key_sw is high
-    APM::apmDevicePtr->checkOnSw();
+    apmManagerPtr->checkOnSw();
 
     // Set up interrupt for key signal
     keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING_FALLING, APM::handleKeyOnInterrupt);
 
     // Display Prompt to user
     apmUart.setDebugPrint(false);
-    while (1) {
-        userPrompt(*APM::apmDevicePtr, &apmUart);
+    while (true) {
+        userPrompt(*apmManagerPtr, &apmUart);
     }
 }
