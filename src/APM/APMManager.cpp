@@ -74,6 +74,7 @@ int APMManager::offToAccessoryMode() {
 
 int APMManager::accessoryToOnMode() {
     mc_relay_GPIO.writePin(EVT::core::IO::GPIO::State::HIGH);
+    apmUart.printDebugString("Providing Power to MC\n\r");
     // TODO: Wait for contactor closed!
     // Use 96V sensing circuitry
 
@@ -123,6 +124,7 @@ int APMManager::onToAccessoryMode() {
     apmUart.printDebugString("Vicor_SW opened\n\r");
 
     mc_relay_GPIO.writePin(EVT::core::IO::GPIO::State::LOW);
+    apmUart.printDebugString("Closing MC Relay\n\r");
 
     // TODO: Wait for CAN handshakes to verify all other boards
     // have returned to accessory mode
