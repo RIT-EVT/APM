@@ -28,22 +28,15 @@ constexpr IO::Pin CAN_RX = IO::Pin::PA_11;
 
 char buf[BUF_SIZE];
 
-void handleKeyOnInterrupt(IO::GPIO *gpio) {
+void handleOnButtonInterrupt(IO::GPIO *gpio) {
     auto apmUart = apmManagerPtr->getApmUart();
-    auto state = gpio->readPin();
-    char outStr[BUF_SIZE];
 
-    snprintf(outStr, BUF_SIZE, "Key Interrupt Triggered: %s edge\n\r",
-             state == IO::GPIO::State::HIGH ? "rising" : "falling");
-    apmUart.printDebugString(outStr);
+    apmUart.printDebugString("On button pressed\n\r");
 
-    if (state == IO::GPIO::State::HIGH && apmManagerPtr->getCurrentMode() == APMMode::ACCESSORY) {
+    if (apmManagerPtr->getCurrentMode() == APMMode::ACCESSORY) {
         apmManagerPtr->accessoryToOnMode();
-    } else if (state == IO::GPIO::State::LOW && apmManagerPtr->getCurrentMode() == APMMode::ON) {
-        apmManagerPtr->onToAccessoryMode();
     } else {
-        // TODO: Handle error
-        apmUart.printString("ERROR: Key_On_SW state does not align with current mode\n\r");
+        apmUart.printString("WARN: On button pressed while bike was not in ACCESSORY mode\n\r");
     }
 }
 
@@ -111,10 +104,20 @@ int main() {
     // Initialize IO Objects
     IO::init();
     IO::UART &uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(APM::BAUD_RATE);
-    IO::GPIO &accessorySW_GPIO = IO::getGPIO<APM::APMManager::ACCESSORY_SW>(IO::GPIO::Direction::OUTPUT);
-    IO::GPIO &chargeSW_GPIO = IO::getGPIO<APM::APMManager::CHARGE_SW>(IO::GPIO::Direction::OUTPUT);
-    IO::GPIO &vicorSW_GPIO = IO::getGPIO<APM::APMManager::VICOR_SW>(IO::GPIO::Direction::OUTPUT);
-    IO::GPIO &keyOnSw_GPIO = IO::getGPIO<APM::APMManager::KEY_ON_UC>(IO::GPIO::Direction::INPUT);
+    IO::GPIO &accessorySW_GPIO =
+            IO::getGPIO<APM::APMManager::ACCESSORY_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &chargeSW_GPIO =
+            IO::getGPIO<APM::APMManager::CHARGE_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &vicorSW_GPIO =
+            IO::getGPIO<APM::APMManager::VICOR_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &keyOnSw_GPIO =
+            IO::getGPIO<APM::APMManager::KEY_ON_UC>(IO::GPIO::Direction::INPUT);
+    IO::GPIO &onIndicator_GPIO =
+            IO::getGPIO<APM::APMManager::ON_INDICATOR>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &accessoryIndicator_GPIO =
+            IO::getGPIO<APM::APMManager::ACCESSORY_INDICATOR>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &mcOnSw_GPIO =
+            IO::getGPIO<APM::APMManager::MC_ON>(EVT::core::IO::GPIO::Direction::OUTPUT);
 
     IO::CAN& can = IO::getCAN<APM::CAN_TX, APM::CAN_RX>();
 
@@ -125,7 +128,8 @@ int main() {
 
     // Create Data Objects
     APM::APMManager apmManager = APM::APMManager(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
-                                                 keyOnSw_GPIO, vicorSW_GPIO, apmTimer);
+                                                 vicorSW_GPIO, apmTimer, accessoryIndicator_GPIO,
+                                                 onIndicator_GPIO, mcOnSw_GPIO);
     apmManagerPtr = &apmManager;
 
     apmUart.setDebugPrint(true);
@@ -134,11 +138,8 @@ int main() {
     // Initially Load Device into Accessory Mode on Power On
     apmManagerPtr->offToAccessoryMode();
 
-    // Check if key_sw is high
-    apmManagerPtr->checkOnSw();
-
     // Set up interrupt for key signal
-    keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING_FALLING, APM::handleKeyOnInterrupt);
+    keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING, APM::handleOnButtonInterrupt);
 
     // Display Prompt to user
     apmUart.setDebugPrint(false);

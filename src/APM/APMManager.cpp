@@ -48,10 +48,12 @@ void sim100StartupTimerIRQHandler(void *htim) {
 namespace APM {
 
 APMManager::APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
-                       IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer)
+                       IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer,
+                       IO::GPIO &accessoryLed, IO::GPIO &onLed, IO::GPIO &mcRelayGpio)
         : apmUart(apmUart), sim100(sim100),
-          accessorySW_GPIO(accessorySwGpio), chargeSW_GPIO(chargeSwGpio),
-          vicorSW_GPIO(vicorSwGpio), keyOnSw_GPIO(keyOnSwGpio), gfdTimer(gfdTimer) {
+          mc_relay_GPIO(mcRelayGpio), accessorySW_GPIO(accessorySwGpio),
+          chargeSW_GPIO(chargeSwGpio), vicorSW_GPIO(vicorSwGpio), accessory_LED(accessoryLed),
+          on_LED(onLed), gfdTimer(gfdTimer) {
     apmManagerPtr1 = this;
 }
 
@@ -60,6 +62,8 @@ int APMManager::offToAccessoryMode() {
     accessorySW_GPIO.writePin(IO::GPIO::State::HIGH);
     // TODO: Send Accessory Mode CAN Message and start sending on timer (interrupt)
     currentMode = APMMode::ACCESSORY;
+    accessory_LED.writePin(EVT::core::IO::GPIO::State::HIGH);
+    on_LED.writePin(EVT::core::IO::GPIO::State::LOW);
 
     apmUart.printDebugString("Accessory_SW Closed\n\r");
     apmUart.printDebugString("Entered Accessory Mode\n\r");
@@ -69,6 +73,11 @@ int APMManager::offToAccessoryMode() {
 }
 
 int APMManager::accessoryToOnMode() {
+    mc_relay_GPIO.writePin(EVT::core::IO::GPIO::State::HIGH);
+    apmUart.printDebugString("Providing Power to MC\n\r");
+    // TODO: Wait for contactor closed!
+    // Use 96V sensing circuitry
+
     apmUart.printDebugString("Transitioning from ACCESSORY -> ON\n\r");
     vicorSW_GPIO.writePin(IO::GPIO::State::HIGH);
     apmUart.printDebugString("Vicor_SW Closed\n\r");
@@ -80,6 +89,8 @@ int APMManager::accessoryToOnMode() {
     // TODO: Send CAN Message for ON Mode on timer
 
     currentMode = APMMode::ON;
+    accessory_LED.writePin(EVT::core::IO::GPIO::State::LOW);
+    on_LED.writePin(EVT::core::IO::GPIO::State::HIGH);
 
     apmUart.printDebugString("Entered On Mode\n\r");
     apmUart.printDebugString("---------------------------------------------\n\r");
@@ -91,8 +102,7 @@ int APMManager::accessoryToOnMode() {
         sim100.setMaxWorkingVoltage(DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE);
         this->gfdTimer.setPeriod(SIM100_STARTUP_PERIOD);
         this->gfdTimer.startTimer(sim100StartupTimerIRQHandler);
-    }
-    else {
+    } else {
         this->gfdTimer.stopTimer();  // Stop timer just in case it is already running
     }
 
@@ -113,16 +123,15 @@ int APMManager::onToAccessoryMode() {
     vicorSW_GPIO.writePin(IO::GPIO::State::LOW);
     apmUart.printDebugString("Vicor_SW opened\n\r");
 
+    mc_relay_GPIO.writePin(EVT::core::IO::GPIO::State::LOW);
+    apmUart.printDebugString("Closing MC Relay\n\r");
+
     // TODO: Wait for CAN handshakes to verify all other boards
     // have returned to accessory mode
 
-    // Wait for the On key to return to accessory state
-    while (keyOnSw_GPIO.readPin() == IO::GPIO::State::HIGH) {
-        apmUart.printDebugString("Waiting for Key to return to accessory mode state\n\r");
-        EVT::core::time::wait(500);
-    }
-
     currentMode = APMMode::ACCESSORY;
+    accessory_LED.writePin(EVT::core::IO::GPIO::State::HIGH);
+    on_LED.writePin(EVT::core::IO::GPIO::State::LOW);
 
     // TODO: Enable Accessory Mode Message on Timer
 
@@ -134,26 +143,6 @@ int APMManager::onToAccessoryMode() {
 
 APMUart & APMManager::getApmUart() const {
     return apmUart;
-}
-
-int APMManager::checkOnSw() {
-    apmUart.printDebugString("Manually checking on switch status\n\r");
-
-    IO::GPIO::State keyOnSwState = keyOnSw_GPIO.readPin();
-    if (keyOnSwState == IO::GPIO::State::HIGH) {
-        switch (currentMode) {
-            case APMMode::OFF:
-                offToAccessoryMode();
-            case APMMode::ACCESSORY:
-                accessoryToOnMode();
-                break;
-            case APMMode::ON:
-            default:
-                apmUart.printDebugString("Device is already On\n\r");
-        }
-    }
-
-    return 0;
 }
 
 APMMode APMManager::getCurrentMode() const {
@@ -168,7 +157,7 @@ EVT::core::DEV::Timer &APMManager::getGFDTimer() const {
     return gfdTimer;
 }
 
-bool APMManager::isIsolationChecking() {
+bool APMManager::isIsolationChecking() const {
     return this->checkGFDIsolationState;
 }
 

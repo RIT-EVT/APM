@@ -25,10 +25,14 @@ enum class APMMode {
 
 class APMManager {
 public:
+    static constexpr IO::Pin MC_ON = IO::Pin::PA_0;
     static constexpr IO::Pin ACCESSORY_SW = IO::Pin::PA_5;
     static constexpr IO::Pin CHARGE_SW = IO::Pin::PA_6;
     static constexpr IO::Pin VICOR_SW = IO::Pin::PA_4;
     static constexpr IO::Pin KEY_ON_UC = IO::Pin::PB_5;
+
+    static constexpr IO::Pin ACCESSORY_INDICATOR = IO::Pin::PB_1;
+    static constexpr IO::Pin ON_INDICATOR = IO::Pin::PB_2;
 
     // Time required for SIM100 to start up before it is ready for operation
     static constexpr uint32_t SIM100_STARTUP_PERIOD = 5000;
@@ -42,7 +46,8 @@ public:
      * @param baud the baudrate for the UART device
      */
     explicit APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
-                        IO::GPIO &keyOnSwGpio, IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer);
+                        IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer,
+                        IO::GPIO &accessoryLed, IO::GPIO &onLed, IO::GPIO &mcRelayGpio);
 
     /**
      * Returns the APMUart object by reference
@@ -89,16 +94,10 @@ public:
     int onToAccessoryMode();
 
     /**
-     * Manually checks the device on switch.  Will transition the bike to On mode accordingly
-     * @return 0 on success
-     */
-    int checkOnSw();
-
-    /**
      * Check the debug status to determine if SIM100 should be checked for isolation faults.
      * @return True if the SIM100 should be checked.  False if not.
      */
-    bool isIsolationChecking();
+    bool isIsolationChecking() const;
 
     /**
      * Sets the variable checkGFDIsolationState for debugging.  If set false then the
@@ -118,6 +117,9 @@ private:
     // Holds a reference to the SIM100 GFD device
     DEV::SIM100 &sim100;
 
+    // GPIO to control the MC relay
+    IO::GPIO &mc_relay_GPIO;
+
     // Controls battery power to bike electronics.
     IO::GPIO &accessorySW_GPIO;
 
@@ -127,8 +129,11 @@ private:
     // Controls turning on the Vicor Power.  Uses main pack to power electronics
     IO::GPIO &vicorSW_GPIO;
 
-    // GPIO input that reads the value of the key signal
-    IO::GPIO &keyOnSw_GPIO;
+    // LED indicator for ACCESSORY mode
+    IO::GPIO &accessory_LED;
+
+    // LED indicator for ON mode
+    IO::GPIO &on_LED;
 
     // Timer instance used to control the GFD polling logic
     EVT::core::DEV::Timer &gfdTimer;
