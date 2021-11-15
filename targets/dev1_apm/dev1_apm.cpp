@@ -26,6 +26,14 @@ constexpr int BUF_SIZE = 256;
 constexpr IO::Pin CAN_TX = IO::Pin::PA_12;
 constexpr IO::Pin CAN_RX = IO::Pin::PA_11;
 
+#ifdef NUCLEO_COMPILATION
+constexpr IO::Pin UART_TX = IO::Pin::UART_TX;
+constexpr IO::Pin UART_RX = IO::Pin::UART_RX;
+#else
+constexpr IO::Pin UART_TX = IO::Pin::PB_10;
+constexpr IO::Pin UART_RX = IO::Pin::PB_11
+#endif
+
 char buf[BUF_SIZE];
 
 void handleOnButtonInterrupt(IO::GPIO *gpio) {
@@ -89,7 +97,7 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
         bool previousState = apmManagerPtr->isIsolationChecking();
         bool newState = !previousState;
         apmManagerPtr->setCheckGFDIsolationState(newState);
-        snprintf(buf, BUF_SIZE, "GFD Isolation Checking has been turned %s\n\r" ,(newState ? "ON" : "OFF"));
+        snprintf(buf, BUF_SIZE, "GFD Isolation Checking has been turned %s\n\r", (newState ? "ON" : "OFF"));
         apmUart->printString(buf);
     } else {
         apmUart->printString("Unrecognized Command\n\r");
@@ -103,7 +111,7 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
 int main() {
     // Initialize IO Objects
     IO::init();
-    IO::UART &uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(APM::BAUD_RATE);
+    IO::UART &uart = IO::getUART<APM::UART_TX, APM::UART_RX>(APM::BAUD_RATE);
     IO::GPIO &accessorySW_GPIO =
             IO::getGPIO<APM::APMManager::ACCESSORY_SW>(IO::GPIO::Direction::OUTPUT);
     IO::GPIO &chargeSW_GPIO =
@@ -137,6 +145,9 @@ int main() {
 
     // Initially Load Device into Accessory Mode on Power On
     apmManagerPtr->offToAccessoryMode();
+
+    // By default do not perform GFD Isolation Checking yet
+    apmManagerPtr->setCheckGFDIsolationState(false);
 
     // Set up interrupt for key signal
     keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING, APM::handleOnButtonInterrupt);
