@@ -31,7 +31,7 @@ constexpr IO::Pin UART_TX = IO::Pin::UART_TX;
 constexpr IO::Pin UART_RX = IO::Pin::UART_RX;
 #else
 constexpr IO::Pin UART_TX = IO::Pin::PB_10;
-constexpr IO::Pin UART_RX = IO::Pin::PB_11
+constexpr IO::Pin UART_RX = IO::Pin::PB_11;
 #endif
 
 char buf[BUF_SIZE];
