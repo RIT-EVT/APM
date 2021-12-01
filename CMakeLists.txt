@@ -6,8 +6,18 @@ cmake_minimum_required(VERSION 3.15)
 set(EVT_CORE_DIR      ${CMAKE_SOURCE_DIR}/libs/EVT-core)
 
 include(CMakeDependentOption)
+
+option(NUCLEO_COMPILATION
+        "Set this to compile the code to run on the Nucleo development board"
+        OFF
+        )
+if(NUCLEO_COMPILATION)
+    add_definitions(-DNUCLEO_COMPILATION)
+endif()
 include(${EVT_CORE_DIR}/cmake/evt-core_compiler.cmake)
 include(${EVT_CORE_DIR}/cmake/evt-core_install.cmake)
+
+
 
 ###############################################################################
 # Project Setup
