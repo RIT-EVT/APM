@@ -12,8 +12,6 @@
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
-// Pointer to the APM Manager
-APM::APMManager *apmManagerPtr = nullptr;
 
 namespace IO = EVT::core::IO;
 
