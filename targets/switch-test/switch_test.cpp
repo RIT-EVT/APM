@@ -77,8 +77,11 @@ int main() {
         if (strncmp("h", APM::buf, APM::BUF_SIZE) == 0) {
             apmUart.printString("List of possible commands:\n\r");
             apmUart.printString("\t'A' - Toggle Accessory Switch\n\r");
+            apmUart.printString("\t'a' - Read Accessory Switch\n\r");
             apmUart.printString("\t'V' - Toggle Vicor Switch\n\r");
+            apmUart.printString("\t'v' - Read Vicor Switch\n\r");
             apmUart.printString("\t'C' - Toggle Charging Switch\n\r");
+            apmUart.printString("\t'c' - Read Charging Switch\n\r");
         } else if (strncmp("A", APM::buf, APM::BUF_SIZE) == 0) {
             auto state = get_toggle(accessorySW_GPIO.readPin());
             accessorySW_GPIO.writePin(state);
@@ -94,7 +97,7 @@ int main() {
             vicorIndicator_GPIO.writePin(state);
             sprintf(APM::buf, "Vicor Switch: %d\n\r", static_cast<unsigned int>(vicorSW_GPIO.readPin()));
             apmUart.printString(APM::buf);
-        } else if (strncmp("a", APM::buf, APM::BUF_SIZE) == 0) {
+        } else if (strncmp("v", APM::buf, APM::BUF_SIZE) == 0) {
             sprintf(APM::buf, "Vicor Switch: %d\n\r", static_cast<unsigned int>(vicorSW_GPIO.readPin()));
             apmUart.printString(APM::buf);
         } else if (strncmp("C", APM::buf, APM::BUF_SIZE) == 0) {
@@ -103,7 +106,7 @@ int main() {
             chargeIndicator_GPIO.writePin(state);
             sprintf(APM::buf, "Charge Switch: %d", static_cast<unsigned int>(chargeSW_GPIO.readPin()));
             apmUart.printString(APM::buf);
-        } else if (strncmp("a", APM::buf, APM::BUF_SIZE) == 0) {
+        } else if (strncmp("c", APM::buf, APM::BUF_SIZE) == 0) {
             sprintf(APM::buf, "Charge Switch: %d\n\r", static_cast<unsigned int>(chargeSW_GPIO.readPin()));
             apmUart.printString(APM::buf);
         }
