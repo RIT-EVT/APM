@@ -75,8 +75,15 @@ int APMManager::offToAccessoryMode() {
 int APMManager::accessoryToOnMode() {
     mc_relay_GPIO.writePin(EVT::core::IO::GPIO::State::HIGH);
     apmUart.printDebugString("Providing Power to MC\n\r");
-    // TODO: Wait for contactor closed!
-    // Use 96V sensing circuitry
+
+    // Wait for MC to provide high voltage to APM
+    // Precharging and closing main contactors
+    EVT::core::time::wait(6000);  // MC charges in < 3s according to L.G.  So double time
+
+    // TODO: Implement more robust check for high voltage
+    // Asked APM Electrical team to add either voltage sensing IC or optocoupler to step down high voltage
+    // to give APM feedback on high voltage status.
+    // Also could use MC CAN message once motor controller choice is finalized.
 
     apmUart.printDebugString("Transitioning from ACCESSORY -> ON\n\r");
     vicorSW_GPIO.writePin(IO::GPIO::State::HIGH);
