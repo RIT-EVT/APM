@@ -39,6 +39,7 @@ add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
+        src/APM/APMCanNode.cpp
         src/APM/APMManager.cpp
         src/APM/APMUart.cpp
         src/APM/dev/SIM100.cpp

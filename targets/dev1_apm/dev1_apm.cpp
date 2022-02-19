@@ -9,6 +9,7 @@
 #include <APM/APMUart.hpp>
 #include <cstring>
 #include <APM/APMManager.hpp>
+#include <APM/APMCanNode.hpp>
 #include <cstdio>
 #include <APM/dev/SIM100.hpp>
 #include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
@@ -128,6 +129,9 @@ int main() {
             IO::getGPIO<APM::APMManager::MC_ON>(EVT::core::IO::GPIO::Direction::OUTPUT);
 
     IO::CAN& can = IO::getCAN<APM::CAN_TX, APM::CAN_RX>();
+
+    // Initialize CAN
+    auto apmCanNode = APM::APMCanNode();
 
     auto apmUart = APM::APMUart(&uart);
     auto sim100 = APM::DEV::SIM100(can);
