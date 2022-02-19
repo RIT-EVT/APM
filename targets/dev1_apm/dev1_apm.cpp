@@ -37,6 +37,38 @@ constexpr IO::Pin UART_RX = IO::Pin::PB_11;
 
 char buf[BUF_SIZE];
 
+///////////////////////////////////////////////////////////////////////////////
+// CANopen specific Callbacks. Need to be defined in some location
+///////////////////////////////////////////////////////////////////////////////
+extern "C" void CONodeFatalError(void) {
+    auto apmUart = apmManagerPtr->getApmUart();
+    apmUart.printDebugString("Fatal CANopen error");
+}
+
+extern "C" void COIfCanReceive(CO_IF_FRM* frm) {}
+
+extern "C" int16_t COLssStore(uint32_t baudrate, uint8_t nodeId) { return 0; }
+
+extern "C" int16_t COLssLoad(uint32_t* baudrate, uint8_t* nodeId) { return 0; }
+
+extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {}
+
+extern "C" void CONmtHbConsEvent(CO_NMT* nmt, uint8_t nodeId) {}
+
+extern "C" void CONmtHbConsChange(CO_NMT* nmt, uint8_t nodeId, CO_MODE mode) {}
+
+extern "C" int16_t COParaDefault(CO_PARA* pg) { return 0; }
+
+extern "C" void COPdoTransmit(CO_IF_FRM* frm) {}
+
+extern "C" int16_t COPdoReceive(CO_IF_FRM* frm) { return 0; }
+
+extern "C" void COPdoSyncUpdate(CO_RPDO* pdo) {}
+
+extern "C" void COTmrLock(void) {}
+
+extern "C" void COTmrUnlock(void) {}
+
 void handleOnButtonInterrupt(IO::GPIO *gpio) {
     auto apmUart = apmManagerPtr->getApmUart();
 

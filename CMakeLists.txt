@@ -10,8 +10,6 @@ if(NOT TARGET_DEV)
     set(TARGET_DEV "STM32F302x8")
 endif()
 
-include(CMakeDependentOption)
-
 option(NUCLEO_COMPILATION
         "Set this to compile the code to run on the Nucleo development board"
         OFF
@@ -29,6 +27,8 @@ elseif(TARGET_DEV STREQUAL "STM32F334x8")
 else()
     message(FATAL_ERROR "The target device is not supported")
 endif()
+
+include(CMakeDependentOption)
 
 include(${EVT_CORE_DIR}/cmake/evt-core_compiler.cmake)
 include(${EVT_CORE_DIR}/cmake/evt-core_install.cmake)
@@ -64,9 +64,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 ###############################################################################
 # Handle dependencies
 ###############################################################################
-
-# TODO: This should be set by the user of this library
-add_compile_definitions(STM32F302x8)
 
 # Link to the EVT-core library
 add_subdirectory(libs/EVT-core/)
