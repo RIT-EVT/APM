@@ -40,7 +40,7 @@ int SIM100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &re
     }
 
     auto response = can.receive(&responseMessage, true);
-    while (response == nullptr || responseMessage.getId() != CAN_RESPONSE_ID  ||
+    while (response == EVT::core::IO::CAN::CANStatus::OK || responseMessage.getId() != CAN_RESPONSE_ID  ||
            responseMessage.getPayload()[0] != requestMuxByte) {
         response = can.receive(&responseMessage, false);
         EVT::core::time::wait(500);
