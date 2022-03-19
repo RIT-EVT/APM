@@ -105,12 +105,14 @@ int main() {
             chargeSW_GPIO.writePin(state);
             chargeEnable_GPIO.writePin(state);
             chargeIndicator_GPIO.writePin(state);
-            sprintf(APM::buf, "Charge Switch: %d", static_cast<unsigned int>(chargeSW_GPIO.readPin()));
+            sprintf(APM::buf, "Charge Switch: %d\n\r", static_cast<unsigned int>(chargeSW_GPIO.readPin()));
             apmUart.printString(APM::buf);
-            sprintf(APM::buf, "Charge Enable: %d", static_cast<unsigned int>(chargeEnable_GPIO.readPin()));
+            sprintf(APM::buf, "Charge Enable: %d\n\r", static_cast<unsigned int>(chargeEnable_GPIO.readPin()));
             apmUart.printString(APM::buf);
         } else if (strncmp("c", APM::buf, APM::BUF_SIZE) == 0) {
             sprintf(APM::buf, "Charge Switch: %d\n\r", static_cast<unsigned int>(chargeSW_GPIO.readPin()));
+            apmUart.printString(APM::buf);
+            sprintf(APM::buf, "Charge Enable: %d\n\r", static_cast<unsigned int>(chargeEnable_GPIO.readPin()));
             apmUart.printString(APM::buf);
         }
     }
