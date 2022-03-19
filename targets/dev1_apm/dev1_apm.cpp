@@ -69,6 +69,8 @@ extern "C" void COTmrLock(void) {}
 
 extern "C" void COTmrUnlock(void) {}
 
+///////////////////////////////////////////////////////////////////////////////
+
 void handleOnButtonInterrupt(IO::GPIO *gpio) {
     auto apmUart = apmManagerPtr->getApmUart();
 
@@ -163,15 +165,15 @@ int main() {
     IO::CAN& can = IO::getCAN<APM::CAN_TX, APM::CAN_RX>();
 
     // Initialize CAN
-    auto apmCanNode = APM::APMCanNode();
+    auto canTimer = EVT::core::DEV::Timerf302x8(TIM15, 100);
+    auto apmCanNode = APM::APMCanNode(can, canTimer);
 
     auto apmUart = APM::APMUart(&uart);
-    auto sim100 = APM::DEV::SIM100(can);
 
     auto apmTimer = EVT::core::DEV::Timerf302x8(TIM2, 5000);
 
     // Create Data Objects
-    APM::APMManager apmManager = APM::APMManager(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
+    APM::APMManager apmManager = APM::APMManager(apmUart, accessorySW_GPIO, chargeSW_GPIO,
                                                  vicorSW_GPIO, apmTimer, accessoryIndicator_GPIO,
                                                  onIndicator_GPIO, mcOnSw_GPIO);
     apmManagerPtr = &apmManager;

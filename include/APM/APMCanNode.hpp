@@ -10,6 +10,7 @@
 #include <EVT/utils/types/FixedQueue.hpp>
 #include <EVT/io/CANopen.hpp>
 #include <EVT/io/types/CANMessage.hpp>
+#include "EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp"
 
 namespace IO = EVT::core::IO;
 
@@ -17,7 +18,13 @@ namespace APM {
 
 class APMCanNode {
 public:
-    APMCanNode();
+    explicit APMCanNode(EVT::core::IO::CAN &can, EVT::core::DEV::Timerf302x8 &canTimer);
+
+    /**
+     * Initializes the CAN Open node and joins the CAN network
+     * @return
+     */
+    EVT::core::IO::CAN::CANStatus init();
 
     /**
      * Get a pointer to the start of the object dictionary
@@ -44,6 +51,16 @@ private:
      * process.
      */
     static constexpr uint8_t OBJECT_DIRECTIONARY_SIZE = 16;
+
+    /**
+     * Can reference to use for communication
+     */
+    IO::CAN& can;
+
+    /**
+     * Reference to the timer device utilized by the CanOpen device
+     */
+    EVT::core::DEV::Timerf302x8 &canTimer;
 
     /**
      * Message queue to hold the CAN messages

@@ -45,7 +45,7 @@ public:
      * Initializes the IO Devices
      * @param baud the baudrate for the UART device
      */
-    explicit APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
+    explicit APMManager(APMUart &apmUart, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
                         IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer,
                         IO::GPIO &accessoryLed, IO::GPIO &onLed, IO::GPIO &mcRelayGpio);
 
@@ -60,7 +60,7 @@ public:
      * Returns a reference to the Sim100 object for this class
      * @return reference to the SIM100 module
      */
-    [[nodiscard]] DEV::SIM100& getSim100() const;
+//    [[nodiscard]] DEV::SIM100& getSim100() const;
 
     /**
      * Gets a reference of the held GFD Timer.  This is used
@@ -113,9 +113,6 @@ private:
 
     // Holds a reference to the APMUart device
     APMUart &apmUart;
-
-    // Holds a reference to the SIM100 GFD device
-    DEV::SIM100 &sim100;
 
     // GPIO to control the MC relay
     IO::GPIO &mc_relay_GPIO;

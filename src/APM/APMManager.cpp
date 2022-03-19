@@ -12,45 +12,45 @@ APM::APMManager *apmManagerPtr1 = nullptr;
  * Handler for timer to poll the SIM100 board to check for isolation faults
  * @param htim pointer to the timer device struct
  */
-void sim100IsolationCheckIRQHandler(void *htim) {
-    if (!apmManagerPtr1->isIsolationChecking()) {
-        // Do not perform GFD Checking
-        return;
-    }
-
-    if (apmManagerPtr1->getCurrentMode() != APM::APMMode::ON) {
-        // Shouldn't happen, but disable timer if you get here while device isn't on
-        auto& timer = apmManagerPtr1->getGFDTimer();
-        timer.stopTimer();
-        return;
-    }
-    auto sim100State = apmManagerPtr1->getSim100().getIsolationState();
-    if (sim100State != APM::DEV::SIM100::IsolationStateResponse::NoError) {
-        apmManagerPtr1->getApmUart().printDebugString("SIM100 Error Occurred\n\r");
-        apmManagerPtr1->onToAccessoryMode();
-    }
-    apmManagerPtr1->getApmUart().printDebugString("SIM100 No Error\n\r");
-}
+//void sim100IsolationCheckIRQHandler(void *htim) {
+//    if (!apmManagerPtr1->isIsolationChecking()) {
+//        // Do not perform GFD Checking
+//        return;
+//    }
+//
+//    if (apmManagerPtr1->getCurrentMode() != APM::APMMode::ON) {
+//        // Shouldn't happen, but disable timer if you get here while device isn't on
+//        auto& timer = apmManagerPtr1->getGFDTimer();
+//        timer.stopTimer();
+//        return;
+//    }
+//    auto sim100State = apmManagerPtr1->getSim100().getIsolationState();
+//    if (sim100State != APM::DEV::SIM100::IsolationStateResponse::NoError) {
+//        apmManagerPtr1->getApmUart().printDebugString("SIM100 Error Occurred\n\r");
+//        apmManagerPtr1->onToAccessoryMode();
+//    }
+//    apmManagerPtr1->getApmUart().printDebugString("SIM100 No Error\n\r");
+//}
 
 /**
  * Method to trigger an interrupt once sufficient time has passed for the SIM100 GFD to start up.
  * Will update the timer to poll the SIM100 for isolation faults using update rate APMManager.SIM100_POLLING_PERIOD
  * @param htim Pointer to the timer struct for which the interrupt was triggered.
  */
-void sim100StartupTimerIRQHandler(void *htim) {
-    // Start the SIM100 polling check
-    auto& timer = apmManagerPtr1->getGFDTimer();
-    timer.stopTimer();
-    timer.setPeriod(APM::APMManager::SIM100_POLLING_PERIOD);
-    timer.startTimer(sim100IsolationCheckIRQHandler);
-}
+//void sim100StartupTimerIRQHandler(void *htim) {
+//    // Start the SIM100 polling check
+//    auto& timer = apmManagerPtr1->getGFDTimer();
+//    timer.stopTimer();
+//    timer.setPeriod(APM::APMManager::SIM100_POLLING_PERIOD);
+//    timer.startTimer(sim100IsolationCheckIRQHandler);
+//}
 
 namespace APM {
 
-APMManager::APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
+APMManager::APMManager(APMUart &apmUart, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
                        IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer,
                        IO::GPIO &accessoryLed, IO::GPIO &onLed, IO::GPIO &mcRelayGpio)
-        : apmUart(apmUart), sim100(sim100),
+        : apmUart(apmUart),
           mc_relay_GPIO(mcRelayGpio), accessorySW_GPIO(accessorySwGpio),
           chargeSW_GPIO(chargeSwGpio), vicorSW_GPIO(vicorSwGpio), accessory_LED(accessoryLed),
           on_LED(onLed), gfdTimer(gfdTimer) {
@@ -104,13 +104,13 @@ int APMManager::accessoryToOnMode() {
 
     // Set up GFD with interrupts.
     if (isIsolationChecking()) {
-        sim100.restartSIM100();
-        EVT::core::time::wait(100);  // TODO: Remove once CAN Open support is added.
-        sim100.setMaxWorkingVoltage(DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE);
-        this->gfdTimer.setPeriod(SIM100_STARTUP_PERIOD);
-        this->gfdTimer.startTimer(sim100StartupTimerIRQHandler);
-    } else {
-        this->gfdTimer.stopTimer();  // Stop timer just in case it is already running
+//        sim100.restartSIM100();
+//        EVT::core::time::wait(100);  // TODO: Remove once CAN Open support is added.
+//        sim100.setMaxWorkingVoltage(DEV::SIM100::DEV1_MAX_BATTERY_VOLTAGE);
+//        this->gfdTimer.setPeriod(SIM100_STARTUP_PERIOD);
+//        this->gfdTimer.startTimer(sim100StartupTimerIRQHandler);
+//    } else {
+//        this->gfdTimer.stopTimer();  // Stop timer just in case it is already running
     }
 
     return 0;
@@ -156,9 +156,9 @@ APMMode APMManager::getCurrentMode() const {
     return currentMode;
 }
 
-DEV::SIM100 &APMManager::getSim100() const {
-    return sim100;
-}
+//DEV::SIM100 &APMManager::getSim100() const {
+//    return sim100;
+//}
 
 EVT::core::DEV::Timer &APMManager::getGFDTimer() const {
     return gfdTimer;

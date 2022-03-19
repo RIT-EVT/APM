@@ -6,6 +6,8 @@
 #include "EVT/io/CAN.hpp"
 #include "EVT/utils/types/FixedQueue.hpp"
 #include "EVT/io/CANopen.hpp"
+#include "APM/APMUart.hpp"
+
 
 namespace IO = EVT::core::IO;
 
@@ -20,7 +22,7 @@ namespace IO = EVT::core::IO;
  * @param message[in] The passed in CAN message that was read.
  */
 void canInterrupt(IO::CANMessage& message, void* priv) {
-    EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>* queue =
+    auto* queue =
             (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
     if (queue != nullptr)
         queue->append(message);
@@ -28,7 +30,7 @@ void canInterrupt(IO::CANMessage& message, void* priv) {
 
 namespace APM {
 
-APMCanNode::APMCanNode() {
+APMCanNode::APMCanNode(EVT::core::IO::CAN &can, EVT::core::DEV::Timerf302x8 &canTimer) : can(can), canTimer(canTimer) {
 
 }
 
@@ -38,6 +40,18 @@ CO_OBJ_T *APMCanNode::getObjectDictionary() {
 
 uint8_t APMCanNode::getNumElements() {
     return OBJECT_DIRECTIONARY_SIZE;
+}
+
+EVT::core::IO::CAN::CANStatus APMCanNode::init() {
+    can.addIRQHandler(canInterrupt, reinterpret_cast<void*>(&canMessageQueue));
+    canTimer.stopTimer();
+
+    auto status = can.connect();
+    if (status != EVT::core::IO::CAN::CANStatus::OK) {
+        return status;
+    }
+
+    return IO::CAN::CANStatus::ERROR;
 }
 } // APM
 
