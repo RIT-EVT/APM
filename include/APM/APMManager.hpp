@@ -28,6 +28,7 @@ public:
     static constexpr IO::Pin MC_ON = IO::Pin::PA_0;
     static constexpr IO::Pin ACCESSORY_SW = IO::Pin::PA_5;
     static constexpr IO::Pin CHARGE_SW = IO::Pin::PA_6;
+    static constexpr IO::Pin CHARGE_LIMITER_ENABLE = IO::Pin::PB_13;
     static constexpr IO::Pin VICOR_SW = IO::Pin::PA_4;
     static constexpr IO::Pin KEY_ON_UC = IO::Pin::PB_5;
 

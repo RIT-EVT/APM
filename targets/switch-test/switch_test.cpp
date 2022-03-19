@@ -53,6 +53,8 @@ int main() {
             IO::getGPIO<APM::APMManager::ACCESSORY_SW>(IO::GPIO::Direction::OUTPUT);
     IO::GPIO &chargeSW_GPIO =
             IO::getGPIO<APM::APMManager::CHARGE_SW>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &chargeEnable_GPIO =
+            IO::getGPIO<APM::APMManager::CHARGE_LIMITER_ENABLE>(IO::GPIO::Direction::OUTPUT);
     IO::GPIO &vicorSW_GPIO =
             IO::getGPIO<APM::APMManager::VICOR_SW>(IO::GPIO::Direction::OUTPUT);
     IO::GPIO &accessoryIndicator_GPIO =
@@ -101,8 +103,11 @@ int main() {
         } else if (strncmp("C", APM::buf, APM::BUF_SIZE) == 0) {
             auto state = get_toggle(chargeSW_GPIO.readPin());
             chargeSW_GPIO.writePin(state);
+            chargeEnable_GPIO.writePin(state);
             chargeIndicator_GPIO.writePin(state);
             sprintf(APM::buf, "Charge Switch: %d", static_cast<unsigned int>(chargeSW_GPIO.readPin()));
+            apmUart.printString(APM::buf);
+            sprintf(APM::buf, "Charge Enable: %d", static_cast<unsigned int>(chargeEnable_GPIO.readPin()));
             apmUart.printString(APM::buf);
         } else if (strncmp("c", APM::buf, APM::BUF_SIZE) == 0) {
             sprintf(APM::buf, "Charge Switch: %d\n\r", static_cast<unsigned int>(chargeSW_GPIO.readPin()));
