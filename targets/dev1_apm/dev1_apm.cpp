@@ -126,6 +126,8 @@ int main() {
             IO::getGPIO<APM::APMManager::ACCESSORY_INDICATOR>(IO::GPIO::Direction::OUTPUT);
     IO::GPIO &mcOnSw_GPIO =
             IO::getGPIO<APM::APMManager::MC_ON>(EVT::core::IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &batteryChargeLimiter_GPIO =
+            IO::getGPIO<IO::Pin::PB_13>(EVT::core::IO::GPIO::Direction::OUTPUT);
 
     IO::CAN& can = IO::getCAN<APM::CAN_TX, APM::CAN_RX>();
 
@@ -151,6 +153,9 @@ int main() {
 
     // Set up interrupt for key signal
     keyOnSw_GPIO.registerIRQ(IO::GPIO::TriggerEdge::RISING, APM::handleOnButtonInterrupt);
+
+    // Pull battery charge limiter high
+    batteryChargeLimiter_GPIO.writePin(IO::GPIO::State::HIGH);
 
     // Display Prompt to user
     apmUart.setDebugPrint(false);
