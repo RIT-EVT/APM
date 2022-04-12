@@ -80,6 +80,7 @@ int APMManager::accessoryToOnMode() {
     // Precharging and closing main contactors
     EVT::core::time::wait(6000);  // MC charges in < 3s according to L.G.  So double time
 
+
     IO::GPIO::State hvLogicLevel = apmManagerPtr1->getLTC2965IMS().checkLogicLevel();
     if (hvLogicLevel == IO::GPIO::State::LOW) {
         apmUart.printDebugString("HV Check Failed. 96V Not Detected\n\r");
