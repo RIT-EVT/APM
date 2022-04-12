@@ -126,16 +126,19 @@ int main() {
             IO::getGPIO<APM::APMManager::ACCESSORY_INDICATOR>(IO::GPIO::Direction::OUTPUT);
     IO::GPIO &mcOnSw_GPIO =
             IO::getGPIO<APM::APMManager::MC_ON>(EVT::core::IO::GPIO::Direction::OUTPUT);
+    IO::GPIO &hvPowerSense_GPIO =
+            IO::getGPIO<APM::APMManager::HV_SENSE_OUT>(EVT::core::IO::GPIO::Direction::OUTPUT);
 
     IO::CAN& can = IO::getCAN<APM::CAN_TX, APM::CAN_RX>();
 
     auto apmUart = APM::APMUart(&uart);
     auto sim100 = APM::DEV::SIM100(can);
+    auto ltc2965ims = APM::DEV::LTC2965IMS(hvPowerSense_GPIO);
 
     auto apmTimer = EVT::core::DEV::Timerf302x8(TIM2, 5000);
 
     // Create Data Objects
-    APM::APMManager apmManager = APM::APMManager(apmUart, sim100, accessorySW_GPIO, chargeSW_GPIO,
+    APM::APMManager apmManager = APM::APMManager(apmUart, sim100, ltc2965ims, accessorySW_GPIO, chargeSW_GPIO,
                                                  vicorSW_GPIO, apmTimer, accessoryIndicator_GPIO,
                                                  onIndicator_GPIO, mcOnSw_GPIO);
     apmManagerPtr = &apmManager;

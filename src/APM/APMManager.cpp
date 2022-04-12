@@ -47,10 +47,10 @@ void sim100StartupTimerIRQHandler(void *htim) {
 
 namespace APM {
 
-APMManager::APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
+APMManager::APMManager(APMUart &apmUart, DEV::SIM100 &sim100, DEV::LTC2965IMS &ltc2965ims, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
                        IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer,
                        IO::GPIO &accessoryLed, IO::GPIO &onLed, IO::GPIO &mcRelayGpio)
-        : apmUart(apmUart), sim100(sim100),
+        : apmUart(apmUart), sim100(sim100), ltc2965ims(ltc2965ims),
           mc_relay_GPIO(mcRelayGpio), accessorySW_GPIO(accessorySwGpio),
           chargeSW_GPIO(chargeSwGpio), vicorSW_GPIO(vicorSwGpio), accessory_LED(accessoryLed),
           on_LED(onLed), gfdTimer(gfdTimer) {

@@ -9,6 +9,7 @@
 #include <EVT/io/pin.hpp>
 #include <EVT/io/UART.hpp>
 #include <APM/dev/SIM100.hpp>
+#include <APM/dev/LTC2965IMS.hpp>
 #include <EVT/dev/Timer.hpp>
 #include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 #include "APMUart.hpp"
@@ -34,6 +35,8 @@ public:
     static constexpr IO::Pin ACCESSORY_INDICATOR = IO::Pin::PB_1;
     static constexpr IO::Pin ON_INDICATOR = IO::Pin::PB_2;
 
+    static constexpr IO::Pin HV_SENSE_OUT = IO::Pin::PC_0;
+
     // Time required for SIM100 to start up before it is ready for operation
     static constexpr uint32_t SIM100_STARTUP_PERIOD = 5000;
 
@@ -45,7 +48,7 @@ public:
      * Initializes the IO Devices
      * @param baud the baudrate for the UART device
      */
-    explicit APMManager(APMUart &apmUart, DEV::SIM100 &sim100, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
+    explicit APMManager(APMUart &apmUart, DEV::SIM100 &sim100, DEV::LTC2965IMS &ltc2965ims, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
                         IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer,
                         IO::GPIO &accessoryLed, IO::GPIO &onLed, IO::GPIO &mcRelayGpio);
 
@@ -61,6 +64,12 @@ public:
      * @return reference to the SIM100 module
      */
     [[nodiscard]] DEV::SIM100& getSim100() const;
+
+    /**
+     * Returns a reference to the LTC2965IMS object for this class
+     * @return reference to the LTC2965IMS module
+     */
+    [[nodiscard]] DEV::LTC2965IMS getLTC2965IMS() const;
 
     /**
      * Gets a reference of the held GFD Timer.  This is used
@@ -116,6 +125,9 @@ private:
 
     // Holds a reference to the SIM100 GFD device
     DEV::SIM100 &sim100;
+
+    // Holds a reference to the LT2965IMS GFD device
+    DEV::LTC2965IMS &ltc2965ims;
 
     // GPIO to control the MC relay
     IO::GPIO &mc_relay_GPIO;
