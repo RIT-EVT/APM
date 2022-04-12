@@ -80,7 +80,14 @@ int APMManager::accessoryToOnMode() {
     // Precharging and closing main contactors
     EVT::core::time::wait(6000);  // MC charges in < 3s according to L.G.  So double time
 
-    // TODO: Implement more robust check for high voltage
+    int hvLogicLevel = apmManagerPtr1->getLTC2965IMS().checkLogicLevel();
+    if (hvLogicLevel == 0) {
+        apmUart.printDebugString("HV Check Failed. 96V Not Detected\n\r");
+        return -1;
+    } else {
+        apmUart.printDebugString("HV Check Succeeded. 96V Not Detected\n\r");
+    }
+
     // Asked APM Electrical team to add either voltage sensing IC or optocoupler to step down high voltage
     // to give APM feedback on high voltage status.
     // Also could use MC CAN message once motor controller choice is finalized.
