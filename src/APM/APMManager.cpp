@@ -47,8 +47,8 @@ void sim100StartupTimerIRQHandler(void *htim) {
 
 namespace APM {
 
-APMManager::APMManager(APMUart &apmUart, DEV::SIM100 &sim100, DEV::LTC2965IMS &ltc2965ims, IO::GPIO &accessorySwGpio, IO::GPIO &chargeSwGpio,
-                       IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer,
+APMManager::APMManager(APMUart &apmUart, DEV::SIM100 &sim100, DEV::LTC2965IMS &ltc2965ims, IO::GPIO &accessorySwGpio,
+                       IO::GPIO &chargeSwGpio, IO::GPIO &vicorSwGpio, EVT::core::DEV::Timerf302x8 &gfdTimer,
                        IO::GPIO &accessoryLed, IO::GPIO &onLed, IO::GPIO &mcRelayGpio)
         : apmUart(apmUart), sim100(sim100), ltc2965ims(ltc2965ims),
           mc_relay_GPIO(mcRelayGpio), accessorySW_GPIO(accessorySwGpio),
@@ -80,7 +80,14 @@ int APMManager::accessoryToOnMode() {
     // Precharging and closing main contactors
     EVT::core::time::wait(6000);  // MC charges in < 3s according to L.G.  So double time
 
-    // TODO: Implement more robust check for high voltage
+    IO::GPIO::State hvLogicLevel = apmManagerPtr1->getLTC2965IMS().checkLogicLevel();
+    if (hvLogicLevel == IO::GPIO::State::LOW) {
+        apmUart.printDebugString("HV Check Failed. 96V Not Detected\n\r");
+        return -1;
+    } else {
+        apmUart.printDebugString("HV Check Succeeded. 96V Not Detected\n\r");
+    }
+
     // Asked APM Electrical team to add either voltage sensing IC or optocoupler to step down high voltage
     // to give APM feedback on high voltage status.
     // Also could use MC CAN message once motor controller choice is finalized.
@@ -158,6 +165,10 @@ APMMode APMManager::getCurrentMode() const {
 
 DEV::SIM100 &APMManager::getSim100() const {
     return sim100;
+}
+
+DEV::LTC2965IMS &APMManager::getLTC2965IMS() const {
+    return ltc2965ims;
 }
 
 EVT::core::DEV::Timer &APMManager::getGFDTimer() const {

@@ -69,7 +69,7 @@ public:
      * Returns a reference to the LTC2965IMS object for this class
      * @return reference to the LTC2965IMS module
      */
-    [[nodiscard]] DEV::LTC2965IMS getLTC2965IMS() const;
+    [[nodiscard]] DEV::LTC2965IMS& getLTC2965IMS() const;
 
     /**
      * Gets a reference of the held GFD Timer.  This is used
