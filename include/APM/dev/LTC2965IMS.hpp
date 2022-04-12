@@ -17,13 +17,13 @@ namespace APM::DEV {
         /**
          * LTC2695IMS constructor
          *
-         * @param can - CAN bus to use
+         * @param GPIO Pin - GPIO Pin to read from
          */
         explicit LTC2965IMS(IO::GPIO &gpio);
 
         /**
-         * Return a 0 or 1 depending on voltage
-         * @return int - 0 or 1
+         * Return GPIO State Low or High based on current voltage
+         * @return GPIO State
          */
         EVT::core::IO::GPIO::State checkLogicLevel();
 
