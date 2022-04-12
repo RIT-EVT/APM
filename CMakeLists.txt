@@ -42,6 +42,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/APM/APMManager.cpp
         src/APM/APMUart.cpp
         src/APM/dev/SIM100.cpp
+        src/APM/dev/LTC2965IMS.cpp
 )
 
 ###############################################################################
