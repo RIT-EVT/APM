@@ -34,7 +34,7 @@ int SIM100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &re
     /* TODO: Implement CAN filtering to only receive SIM100 CAN messages here.
        This entire function will be updated for better handling with CAN Open integration so this
        is a temporary fix */
-
+    // TODO: Just exit the function if not expecting an ack
 //    if (!expectResponse) {
 //        return 0;
 //    }
