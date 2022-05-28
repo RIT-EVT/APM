@@ -34,18 +34,18 @@ int SIM100::sendMessage(uint8_t dataLength, uint8_t *payload, IO::CANMessage &re
     /* TODO: Implement CAN filtering to only receive SIM100 CAN messages here.
        This entire function will be updated for better handling with CAN Open integration so this
        is a temporary fix */
-
-    if (!expectResponse) {
-        return 0;
-    }
-
-    auto response = can.receive(&responseMessage, true);
-    while (response == nullptr || responseMessage.getId() != CAN_RESPONSE_ID  ||
-           responseMessage.getPayload()[0] != requestMuxByte) {
-        response = can.receive(&responseMessage, false);
-        EVT::core::time::wait(500);
-        // TODO: Implement timeout and return something accordingly.  Also better error handling
-    }
+    // TODO: Just exit the function if not expecting an ack
+//    if (!expectResponse) {
+//        return 0;
+//    }
+//
+//    auto response = can.receive(&responseMessage, true);
+//    while (response == nullptr || responseMessage.getId() != CAN_RESPONSE_ID  ||
+//           responseMessage.getPayload()[0] != requestMuxByte) {
+//        response = can.receive(&responseMessage, false);
+//        EVT::core::time::wait(500);
+//        // TODO: Implement timeout and return something accordingly.  Also better error handling
+//    }
 
     return 0;
 }

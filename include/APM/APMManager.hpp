@@ -28,8 +28,14 @@ public:
     static constexpr IO::Pin MC_ON = IO::Pin::PA_0;
     static constexpr IO::Pin ACCESSORY_SW = IO::Pin::PA_5;
     static constexpr IO::Pin CHARGE_SW = IO::Pin::PA_6;
+    static constexpr IO::Pin CHARGE_LIMITER_ENABLE = IO::Pin::PB_13;
     static constexpr IO::Pin VICOR_SW = IO::Pin::PA_4;
     static constexpr IO::Pin KEY_ON_UC = IO::Pin::PB_5;
+
+    static constexpr IO::Pin Test_LED_0 = EVT::core::IO::Pin::PA_7;
+    static constexpr IO::Pin Test_LED_1 = EVT::core::IO::Pin::PA_8;
+    static constexpr IO::Pin Test_LED_2 = EVT::core::IO::Pin::PA_9;
+    static constexpr IO::Pin Test_LED_3 = EVT::core::IO::Pin::PA_10;
 
     static constexpr IO::Pin ACCESSORY_INDICATOR = IO::Pin::PB_1;
     static constexpr IO::Pin ON_INDICATOR = IO::Pin::PB_2;
