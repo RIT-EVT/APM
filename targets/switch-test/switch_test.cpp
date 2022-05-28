@@ -37,7 +37,7 @@ char buf[BUF_SIZE];
  * @param state the current state of a GPIO pin
  * @return the opposite state
  */
-EVT::core::IO::GPIO::State get_toggle(EVT::core::IO::GPIO::State state) {
+EVT::core::IO::GPIO::State getToggle(EVT::core::IO::GPIO::State state) {
     if (state == EVT::core::IO::GPIO::State::LOW) {
         return EVT::core::IO::GPIO::State::HIGH;
     } else {
@@ -83,7 +83,7 @@ int main() {
             apmUart.printString("\t'C' - Toggle Charging Switch\n\r");
             apmUart.printString("\t'c' - Read Charging Switch\n\r");
         } else if (strncmp("A", APM::buf, APM::BUF_SIZE) == 0) {
-            auto state = get_toggle(accessorySW_GPIO.readPin());
+            auto state = getToggle(accessorySW_GPIO.readPin());
             accessorySW_GPIO.writePin(state);
             accessoryIndicator_GPIO.writePin(state);
             sprintf(APM::buf, "Accessory Switch: %d\n\r", static_cast<unsigned int>(accessorySW_GPIO.readPin()));
@@ -92,7 +92,7 @@ int main() {
             sprintf(APM::buf, "Accessory Switch: %d\n\r", static_cast<unsigned int>(accessorySW_GPIO.readPin()));
             apmUart.printString(APM::buf);
         } else if (strncmp("V", APM::buf, APM::BUF_SIZE) == 0) {
-            auto state = get_toggle(vicorSW_GPIO.readPin());
+            auto state = getToggle(vicorSW_GPIO.readPin());
             vicorSW_GPIO.writePin(state);
             vicorIndicator_GPIO.writePin(state);
             sprintf(APM::buf, "Vicor Switch: %d\n\r", static_cast<unsigned int>(vicorSW_GPIO.readPin()));
@@ -101,7 +101,7 @@ int main() {
             sprintf(APM::buf, "Vicor Switch: %d\n\r", static_cast<unsigned int>(vicorSW_GPIO.readPin()));
             apmUart.printString(APM::buf);
         } else if (strncmp("C", APM::buf, APM::BUF_SIZE) == 0) {
-            auto state = get_toggle(chargeSW_GPIO.readPin());
+            auto state = getToggle(chargeSW_GPIO.readPin());
             chargeSW_GPIO.writePin(state);
             chargeEnable_GPIO.writePin(state);
             chargeIndicator_GPIO.writePin(state);
