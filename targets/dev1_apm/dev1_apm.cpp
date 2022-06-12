@@ -104,6 +104,7 @@ int userPrompt(const APMManager &apmDevice, APMUart *apmUart) {
     }
 
     return 0;
+
 }
 
 }  // namespace APM
