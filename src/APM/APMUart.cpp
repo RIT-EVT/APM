@@ -11,6 +11,7 @@ APMUart::APMUart(IO::UART *apmUart, bool apmDebugPrint) {
     this -> apmDebugPrint = apmDebugPrint;
 }
 
+// NOLINTBEGIN
 void APMUart::startupMessage() const {
     apmUart->printf("%s\n\r", MINICOM_CLEAR_DISPLAY);    // Escape sequence for minicom terminal to clear display
 
@@ -28,6 +29,7 @@ void APMUart::startupMessage() const {
 
     apmUart->printf("\nDEV1 APMManager Initializing...\n\n\r");
 }
+// NOLINTEND
 
 void APMUart::setDebugPrint(bool debugPrint) {
     apmDebugPrint = debugPrint;
