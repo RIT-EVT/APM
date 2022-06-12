@@ -7,8 +7,8 @@
 namespace APM {
 
 APMUart::APMUart(IO::UART *apmUart, bool apmDebugPrint) {
-    this -> apmUart = apmUart;
-    this -> apmDebugPrint = apmDebugPrint;
+  this->apmUart = apmUart;
+  this->apmDebugPrint = apmDebugPrint;
 }
 
 // clang-format off
@@ -31,29 +31,24 @@ void APMUart::startupMessage() const {
 }
 // clang-format on
 
+void APMUart::setDebugPrint(bool debugPrint) { apmDebugPrint = debugPrint; }
 
-void APMUart::setDebugPrint(bool debugPrint) {
-    apmDebugPrint = debugPrint;
-}
-
-void APMUart::printDebugString(const char* message) const {
-    if (apmUart != nullptr) {
-        if (apmDebugPrint) {
-            apmUart -> printf("%s", message);
-        }
+void APMUart::printDebugString(const char *message) const {
+  if (apmUart != nullptr) {
+    if (apmDebugPrint) {
+      apmUart->printf("%s", message);
     }
+  }
 }
 
 void APMUart::printString(const char *message) const {
-    apmUart ->printf("%s", message);
+  apmUart->printf("%s", message);
 }
 
-char APMUart::getc() const {
-    return apmUart->getc();
-}
+char APMUart::getc() const { return apmUart->getc(); }
 
 char *APMUart::gets(char *buf, size_t size) const {
-    return apmUart->gets(buf, size);
+  return apmUart->gets(buf, size);
 }
 
-}  // namespace APM
+} // namespace APM
